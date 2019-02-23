@@ -54,7 +54,11 @@ const tryRefreshAPI = async () => {
 
 const updatePresence = (newPlayingWith) => {
   client.user.setPresence({ status: 'online', game: { name: `with ${newPlayingWith}` } });
-}
+};
+
+const sendMessage = (msg, replyData) => {
+  msg.channel.send(replyData);
+};
 
 const item = (msg, args, { region, desc }) => {
   const ref = itemSet.get(args);
@@ -81,7 +85,7 @@ const item = (msg, args, { region, desc }) => {
 
   updatePresence(itemData.name);
 
-  msg.channel.send({ embed });
+  sendMessage(msg, { embed });
 };
 
 const itemd = (msg, args, opts) => {
@@ -116,7 +120,7 @@ const char = (msg, args, { region, desc }) => {
 
   updatePresence(charData.name);
 
-  msg.channel.send({ embed });
+  sendMessage(msg, { embed });
 };
 
 const chard = (msg, args, opts) => {
@@ -155,7 +159,7 @@ const guide = (msg, args, { region, desc }) => {
 
   updatePresence(guideData.name);
 
-  msg.channel.send({ embed });
+  sendMessage(msg, { embed });
 };
 
 const guided = (msg, args, opts) => {
@@ -173,7 +177,7 @@ const commands = {
 };
 
 const determineRegion = (msg) => {
-  const chanName = msg.channel.name;
+  const chanName = msg.channel.name || '';
   if(chanName.includes('jp')) return 'jp';
   return 'gl';
 }
@@ -181,15 +185,21 @@ const determineRegion = (msg) => {
 client.on('message', async msg => {
 
   const content = msg.content;
+  let region = determineRegion(msg);
 
-  const cmd = (content.split(' ')[0] || '').toLowerCase();
+  let cmd = (content.split(' ')[0] || '').toLowerCase();
   const args = content.slice(content.indexOf(' ') + 1);
+
+  if(cmd.includes('jp')) {
+    region = 'jp';
+    cmd = cmd.split('jp').join('');
+  }
   
   if(!commands[cmd]) return;
 
   await tryRefreshAPI();
 
-  commands[cmd](msg, args, { region: determineRegion(msg) });
+  commands[cmd](msg, args, { region });
 });
 
 client.on('error', err => console.error(err));
