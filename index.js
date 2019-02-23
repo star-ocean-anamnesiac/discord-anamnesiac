@@ -32,8 +32,25 @@ const refreshAPI = async () => {
   });
 
   allCharacters.forEach(char => {
-    charSet.add(char.name);
-    charHash[`${char.name}.${char.cat}`] = char;
+    const aliases = [char.name];
+
+    const firstName = char.name.split(' ')[0];
+    
+    // holiday aliases
+    if(char.name.includes('(')) {
+      const holiday = char.name.split('(')[1].split(')')[0];
+      aliases.push(`${holiday} ${firstName}`);
+      aliases.push(`${holiday.substring(0, 1)} ${firstName}`)
+
+    // first name alias
+    } else {
+      aliases.push(firstName);
+    }
+
+    aliases.forEach(alias => {
+      charSet.add(alias);
+      charHash[`${alias}.${char.cat}`] = char;
+    });
   });
 
   allGuides.forEach(guide => {
@@ -74,7 +91,7 @@ const item = (msg, args, { region, desc }) => {
   }
 
   const embed = new Discord.RichEmbed()
-    .setAuthor(`${itemData.name} (${itemData.cat.toUpperCase()})`, `${ASSET_URL}/icons/menu/menu-${itemData.subtype}.png`)
+    .setAuthor(`${itemData.name} [${itemData.cat.toUpperCase()}]`, `${ASSET_URL}/icons/menu/menu-${itemData.subtype}.png`)
     .setDescription(desc ? itemData.notes.substring(0, 2048) : '')
     .setThumbnail(`${ASSET_URL}/items/${itemData.subtype === 'all' ? 'accessory' : itemData.subType}/${itemData.picture}.png`)
     .setTitle('See it on Anamnesiac!')
@@ -107,7 +124,7 @@ const char = (msg, args, { region, desc }) => {
   }
 
   const embed = new Discord.RichEmbed()
-    .setAuthor(`${charData.name} (${charData.cat.toUpperCase()})`, `${ASSET_URL}/icons/charclass/class-${charData.type}.png`)
+    .setAuthor(`${charData.name} [${charData.cat.toUpperCase()}]`, `${ASSET_URL}/icons/charclass/class-${charData.type}.png`)
     .setDescription(desc ? charData.notes.substring(0, 2048) : '')
     .setThumbnail(`${ASSET_URL}/characters/${charData.picture}.png`)
     .setTitle('See it on Anamnesiac!')
@@ -142,7 +159,7 @@ const guide = (msg, args, { region, desc }) => {
   }
 
   const embed = new Discord.RichEmbed()
-    .setAuthor(`${guideData.name} (${guideData.cat.toUpperCase()})`, `${ASSET_URL}/icons/enemytypes/type-${guideData.race.toLowerCase()}.png`)
+    .setAuthor(`${guideData.name} [${guideData.cat.toUpperCase()}]`, `${ASSET_URL}/icons/enemytypes/type-${guideData.race.toLowerCase()}.png`)
     .setDescription(desc ? guideData.desc.substring(0, 2048) : '')
     .setThumbnail(`${ASSET_URL}/bosses/boss_${guideData.image}.png`)
     .setTitle('See it on Anamnesiac!')
