@@ -72,7 +72,7 @@ const item = (msg, args, { region, desc }) => {
   const embed = new Discord.RichEmbed()
     .setAuthor(`${itemData.name} (${itemData.cat.toUpperCase()})`, `${ASSET_URL}/icons/menu/menu-${itemData.subtype}.png`)
     .setDescription(desc ? itemData.notes.substring(0, 2048) : '')
-    .setThumbnail(`${ASSET_URL}/items/${itemData.subtype}/${itemData.picture}.png`)
+    .setThumbnail(`${ASSET_URL}/items/${itemData.subtype === 'all' ? 'accessory' : itemData.subType}/${itemData.picture}.png`)
     .setTitle('See it on Anamnesiac!')
     .setURL(`https://anamnesiac.seiyria.com/items?region=${itemData.cat}&item=${encodeURI(itemData.name)}`)
     .setFooter(ref[0][0] === 1 ? '' : `Sorry, I could not find an exact match for "${args}". This'll have to do, 'kay?`)

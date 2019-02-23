@@ -4,7 +4,6 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "prestart": "sync",
     "start": "node index.js",
     "deploy": "gcloud app deploy"
   },
