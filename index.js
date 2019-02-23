@@ -1,11 +1,10 @@
 
-const API_TOKEN = process.env.DISCORD_TOKEN;
-const API_URL = 'https://anamnesiac.seiyria.com/data';
-const ASSET_URL = 'https://anamnesiac.seiyria.com/assets';
-
 const FuzzySet = require('fuzzyset.js');
 const axios = require('axios');
 const Discord = require('discord.js');
+
+const API_URL = 'https://anamnesiac.seiyria.com/data';
+const ASSET_URL = 'https://anamnesiac.seiyria.com/assets';
 
 const itemSet = new FuzzySet();
 const charSet = new FuzzySet();
@@ -53,6 +52,10 @@ const tryRefreshAPI = async () => {
   }
 };
 
+const updatePresence = (newPlayingWith) => {
+  client.user.setPresence({ status: 'online', game: { name: `with ${newPlayingWith}` } });
+}
+
 const item = (msg, args, { region, desc }) => {
   const ref = itemSet.get(args);
   if(!ref) {
@@ -75,6 +78,8 @@ const item = (msg, args, { region, desc }) => {
     .setFooter(ref[0][0] === 1 ? '' : `Sorry, I could not find an exact match for "${args}". This'll have to do, 'kay?`)
     .addField('Factors', itemData.factors.map(x => `* ${x.desc} ${x.lb ? `[Obtained @ LB ${x.lb}]` : ''}`).join('\n'))
     .addField('Obtained From', itemData.obtained);
+
+  updatePresence(itemData.name);
 
   msg.channel.send({ embed });
 };
@@ -108,6 +113,8 @@ const char = (msg, args, { region, desc }) => {
   charData.talents.forEach(tal => {
     embed.addField(`Talent: ${tal.name}`, tal.effects.map(x => `* ${x.desc}`).join('\n'));
   });
+
+  updatePresence(charData.name);
 
   msg.channel.send({ embed });
 };
@@ -145,6 +152,8 @@ const guide = (msg, args, { region, desc }) => {
       if(x.status) return `* ${x.status} (${x.vuln})`;
       return x.plain;
     }).join('\n') : 'Nothing.');
+
+  updatePresence(guideData.name);
 
   msg.channel.send({ embed });
 };
@@ -185,4 +194,9 @@ client.on('message', async msg => {
 
 client.on('error', err => console.error(err));
 
-client.login(API_TOKEN);
+const init = async () => {
+  const API_TOKEN = process.env.DISCORD_TOKEN;
+  client.login(API_TOKEN);
+};
+
+init();
