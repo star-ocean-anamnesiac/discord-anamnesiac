@@ -4,11 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "prestart": "sync",
     "start": "node index.js",
     "deploy": "gcloud app deploy"
   },
   "engines": {
-    "node": "10.x"
+    "node": "10.x.x"
   },
   "repository": {
     "type": "git",
