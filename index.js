@@ -182,7 +182,7 @@ client.on('message', async msg => {
 
   const content = msg.content;
 
-  const cmd = content.split(' ')[0];
+  const cmd = (content.split(' ')[0] || '').toLowerCase();
   const args = content.slice(content.indexOf(' ') + 1);
   
   if(!commands[cmd]) return;
