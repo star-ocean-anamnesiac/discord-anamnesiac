@@ -21,6 +21,10 @@ const guideHash = {};
 
 const emojiHash = {};
 
+const getEmoji = (em) => {
+  return emojiHash[em] || '';
+}
+
 const refreshAPI = async () => {
   const { allItems, allCharacters, allGuides, root } = (await axios.get(API_URL)).data;
 
@@ -99,8 +103,10 @@ const item = (msg, args, { region, desc }) => {
     .setTitle('See it on Anamnesiac!')
     .setURL(`https://anamnesiac.seiyria.com/items?region=${itemData.cat}&item=${encodeURI(itemData.name)}`)
     .setFooter(ref[0][0] === 1 ? '' : `Sorry, I could not find an exact match for "${args}". This'll have to do, 'kay?`)
-    .addField('About', `${emojiHash[`sbrRarity${itemData.star}`]} ${itemData.subtype === 'all' ? 'Accessory' : weaponHash[itemData.subtype]}`)
-    .addField('Factors', itemData.factors.map(x => `* ${x.desc} ${x.lb ? emojiHash[`sbrWeapon${x.lb}`] : ''}`).join('\n'))
+    .addField('About', `${getEmoji(`sbrRarity${itemData.star}`)} ${itemData.subtype === 'all' ? 'Accessory' : weaponHash[itemData.subtype]}`)
+    .addField('Factors', itemData.factors.map(x => {
+      return `* ${x.desc} ${x.lb ? getEmoji(`sbrWeapon${x.lb}`) : ''} ${x.element ? getEmoji(`sbrEl${x.element}`) : ''} ${x.slayer ? getEmoji(`sbrType${x.slayer}`) : ''}`;
+    }).join('\n'))
     .addField('Obtained From', itemData.obtained);
 
   updatePresence(itemData.name);
@@ -134,7 +140,7 @@ const char = (msg, args, { region, desc }) => {
     .setURL(`https://anamnesiac.seiyria.com/characters?region=${charData.cat}&char=${encodeURI(charData.name)}`)
     .setFooter(ref[0][0] === 1 ? '' : `Sorry, I could not find an exact match for "${args}". This'll have to do, 'kay?`);
 
-  embed.addField('About', `${emojiHash[`sbrRarity${charData.star}`]} ${charData.ace ? 'ACE' : ''} ${charData.limited ? 'Limited' : ''} - ${weaponHash[charData.weapon]} User`);
+  embed.addField('About', `${getEmoji(`sbrRarity${charData.star}`)} ${charData.ace ? 'ACE' : ''} ${charData.limited ? 'Limited' : ''} - ${weaponHash[charData.weapon]} User`);
 
   charData.talents.forEach(tal => {
     embed.addField(`Talent: ${tal.name}`, tal.effects.map(x => `* ${x.desc} ${x.all ? `(All ${x.all === true ? 'Party' : x.all})` : ''}`).join('\n'));
@@ -172,10 +178,10 @@ const guide = (msg, args, { region, desc }) => {
     .setFooter(ref[0][0] === 1 ? '' : `Sorry, I could not find an exact match for "${args}". This'll have to do, 'kay?`)
     .addField('Active?', guideData.isActive ? 'Currently active.' : 'Currently inactive.')
     .addField('Recommendations', guideData.recommendations ? guideData.recommendations.map(x => `* ${x.plain || x.unit}`).join('\n') : 'Nothing.')
-    .addField('Inflicts', guideData.statusInflictions ? guideData.statusInflictions.map(x => `* ${x}`).join('\n') : 'Nothing.')
+    .addField('Inflicts', guideData.statusInflictions ? guideData.statusInflictions.map(x => `* ${getEmoji(`sbrDebuff${x}`)} ${x}`).join('\n') : 'Nothing.')
     .addField('Weaknesses', guideData.weaknesses ? guideData.weaknesses.map(x => {
-      if(x.element) return `* ${x.element} (${x.percentWeakness}%)`;
-      if(x.status) return `* ${x.status} (${x.vuln})`;
+      if(x.element) return `* ${getEmoji(`sbrEl${x.element}`)} ${x.element} (${x.percentWeakness}%)`;
+      if(x.status) return `* ${getEmoji(`sbrDebuff${x.status}`)} ${x.status} (${x.vuln})`;
       return x.plain;
     }).join('\n') : 'Nothing.');
 
