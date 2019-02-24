@@ -19,6 +19,8 @@ const itemHash = {};
 const charHash = {};
 const guideHash = {};
 
+const emojiHash = {};
+
 const refreshAPI = async () => {
   const { allItems, allCharacters, allGuides, root } = (await axios.get(API_URL)).data;
 
@@ -132,7 +134,7 @@ const char = (msg, args, { region, desc }) => {
     .setFooter(ref[0][0] === 1 ? '' : `Sorry, I could not find an exact match for "${args}". This'll have to do, 'kay?`);
 
   charData.talents.forEach(tal => {
-    embed.addField(`Talent: ${tal.name}`, tal.effects.map(x => `* ${x.desc}`).join('\n'));
+    embed.addField(`Talent: ${tal.name}`, tal.effects.map(x => `* ${x.desc} ${x.all ? `(All ${x.all === true ? 'Party' : x.all})` : ''}`).join('\n'));
   });
 
   updatePresence(charData.name);
@@ -197,7 +199,16 @@ const determineRegion = (msg) => {
   const chanName = msg.channel.name || '';
   if(chanName.includes('jp')) return 'jp';
   return 'gl';
-}
+};
+
+client.on('ready', () => {
+  console.log('Started up!');
+
+  const allEmoji = client.emojis.filter(emoji => emoji.name.startsWith('sbr'));
+  allEmoji.forEach(emoji => {
+    allEmoji[emoji.name] = emoji.toString();
+  });
+});
 
 client.on('message', async msg => {
 
