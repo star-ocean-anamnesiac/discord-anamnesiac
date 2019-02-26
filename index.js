@@ -41,6 +41,10 @@ const refreshAPI = async () => {
     const aliases = [char.name];
 
     const firstName = char.name.split(' ')[0];
+
+    if(char.awakened) {
+      aliases.push(`awk ${firstName}`);
+    }
     
     // holiday aliases
     if(char.name.includes('(')) {
