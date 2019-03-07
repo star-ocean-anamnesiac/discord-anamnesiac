@@ -1,32 +1,24 @@
 
-const FuzzySet = require('fuzzyset.js');
 const axios = require('axios');
 const Discord = require('discord.js');
 
-const API_URL = 'https://anamnesiac.seiyria.com/data';
-const ASSET_URL = 'https://anamnesiac.seiyria.com/assets';
+const { API_URL, weaponHash, emojiHash, emojiInstHash } = require('./shared');
 
-const itemSet = new FuzzySet();
-const charSet = new FuzzySet();
-const guideSet = new FuzzySet();
+const { guideSet, guideHash, guide, guided } = require('./commands/guide');
+const { itemSet, itemHash, item, itemd } = require('./commands/item');
+const { charSet, charHash, char, chard } = require('./commands/char');
+
+const { roomInit, room } = require('./commands/room');
+const { contribute } = require('./commands/contribute');
 
 const client = new Discord.Client();
 
 let currentAPICommit = '';
-
-const weaponHash = {};
-const itemHash = {};
-const charHash = {};
-const guideHash = {};
-
-const emojiHash = {};
-
-const getEmoji = (em) => {
-  return emojiHash[em] || '';
-}
+let currentData = {};
 
 const refreshAPI = async () => {
   const { allItems, allCharacters, allGuides, root } = (await axios.get(API_URL)).data;
+  currentData = { allItems, allCharacters, allGuides };
 
   root.weapons.forEach(({ id, name }) => {
     weaponHash[id] = name;
@@ -79,138 +71,16 @@ const tryRefreshAPI = async () => {
   }
 };
 
-const updatePresence = (newPlayingWith) => {
-  client.user.setPresence({ status: 'online', game: { name: `with ${newPlayingWith}` } });
-};
-
-const sendMessage = (msg, replyData) => {
-  msg.channel.send(replyData);
-};
-
-const item = (msg, args, { region, desc }) => {
-  const ref = itemSet.get(args);
-  if(!ref) {
-    msg.reply(`Sorry, there isn't anything like "${args}" in my item database.`);
-    return;
-  }
-
-  const itemData = itemHash[`${ref[0][1]}.${region}`];
-  if(!itemData) {
-    msg.reply(`Sorry, there isn't anything like "${args}" in my item database in region "${region.toUpperCase()}".`);
-    return;
-  }
-
-  const embed = new Discord.RichEmbed()
-    .setAuthor(`${itemData.name} [${itemData.cat.toUpperCase()}]`, `${ASSET_URL}/icons/menu/menu-${itemData.subtype}.png`)
-    .setDescription(desc ? itemData.notes.substring(0, 2048) : '')
-    .setThumbnail(`${ASSET_URL}/items/${itemData.subtype === 'all' ? 'accessory' : itemData.subtype}/${itemData.picture}.png`)
-    .setTitle('See it on Anamnesiac!')
-    .setURL(`https://anamnesiac.seiyria.com/items?region=${itemData.cat}&item=${encodeURI(itemData.name)}`)
-    .setFooter(ref[0][0] === 1 ? '' : `Sorry, I could not find an exact match for "${args}". This'll have to do, 'kay?`)
-    .addField('About', `${getEmoji(`sbrRarity${itemData.star}`)} ${itemData.subtype === 'all' ? 'Accessory' : weaponHash[itemData.subtype]}`)
-    .addField('Factors', itemData.factors.map(x => {
-      return `* ${x.desc} ${x.lb ? getEmoji(`sbrWeapon${x.lb}`) : ''} ${x.element ? getEmoji(`sbrEl${x.element}`) : ''} ${x.slayer ? getEmoji(`sbrType${x.slayer}`) : ''}`;
-    }).join('\n'))
-    .addField('Obtained From', itemData.obtained);
-
-  updatePresence(itemData.name);
-
-  sendMessage(msg, { embed });
-};
-
-const itemd = (msg, args, opts) => {
-  opts.desc = true;
-  item(msg, args, opts);
-};
-
-const char = (msg, args, { region, desc }) => {
-  const ref = charSet.get(args);
-  if(!ref) {
-    msg.reply(`Sorry, there isn't anything like "${args}" in my character database.`);
-    return;
-  }
-
-  const charData = charHash[`${ref[0][1]}.${region}`];
-  if(!charData) {
-    msg.reply(`Sorry, there isn't anything like "${args}" in my char database in region "${region.toUpperCase()}".`);
-    return;
-  }
-
-  let awk = '';
-  if(charData.awakened) {
-    awk = getEmoji(`sbrAwk${charData.awakened === true ? 10 : 9}`);
-  }
-
-  const embed = new Discord.RichEmbed()
-    .setAuthor(`${charData.name} [${charData.cat.toUpperCase()}]`, `${ASSET_URL}/icons/charclass/class-${charData.type}.png`)
-    .setDescription(desc ? charData.notes.substring(0, 2048) : '')
-    .setThumbnail(`${ASSET_URL}/characters/${charData.picture}.png`)
-    .setTitle('See it on Anamnesiac!')
-    .setURL(`https://anamnesiac.seiyria.com/characters?region=${charData.cat}&char=${encodeURI(charData.name)}`)
-    .setFooter(ref[0][0] === 1 ? '' : `Sorry, I could not find an exact match for "${args}". This'll have to do, 'kay?`);
-
-  embed.addField('About', `${getEmoji(`sbrRarity${charData.star}`)} ${awk} ${charData.ace ? 'ACE' : ''} ${charData.limited ? 'Limited' : ''} - ${weaponHash[charData.weapon]} User`);
-
-  charData.talents.forEach(tal => {
-    embed.addField(`Talent: ${tal.name}`, tal.effects.map(x => `* ${x.desc} ${x.all ? `(All ${x.all === true ? 'Party' : x.all})` : ''}`).join('\n'));
-  });
-
-  updatePresence(charData.name);
-
-  sendMessage(msg, { embed });
-};
-
-const chard = (msg, args, opts) => {
-  opts.desc = true;
-  char(msg, args, opts);
-};
-
-const guide = (msg, args, { region, desc }) => {
-  const ref = guideSet.get(args);
-  if(!ref) {
-    msg.reply(`Sorry, there isn't anything like "${args}" in my guide database.`);
-    return;
-  }
-
-  const guideData = guideHash[`${ref[0][1]}.${region}`];
-  if(!guideData) {
-    msg.reply(`Sorry, there isn't anything like "${args}" in my guide database in region "${region.toUpperCase()}".`);
-    return;
-  }
-
-  const embed = new Discord.RichEmbed()
-    .setAuthor(`${guideData.name} [${guideData.cat.toUpperCase()}]`, `${ASSET_URL}/icons/enemytypes/type-${guideData.race.toLowerCase()}.png`)
-    .setDescription(desc ? guideData.desc.substring(0, 2048) : '')
-    .setThumbnail(`${ASSET_URL}/bosses/boss_${guideData.image}.png`)
-    .setTitle('See it on Anamnesiac!')
-    .setURL(`https://anamnesiac.seiyria.com/boss-guides?region=${guideData.cat}&guide=${encodeURI(guideData.name)}`)
-    .setFooter(ref[0][0] === 1 ? '' : `Sorry, I could not find an exact match for "${args}". This'll have to do, 'kay?`)
-    .addField('Active?', guideData.isActive ? 'Currently active.' : 'Currently inactive.')
-    .addField('Recommendations', guideData.recommendations ? guideData.recommendations.map(x => `* ${x.plain || x.unit}`).join('\n') : 'Nothing.')
-    .addField('Inflicts', guideData.statusInflictions ? guideData.statusInflictions.map(x => `* ${getEmoji(`sbrDebuff${x}`)} ${x}`).join('\n') : 'Nothing.')
-    .addField('Weaknesses', guideData.weaknesses ? guideData.weaknesses.map(x => {
-      if(x.element) return `* ${getEmoji(`sbrEl${x.element}`)} ${x.element} (${x.percentWeakness}%)`;
-      if(x.status) return `* ${getEmoji(`sbrDebuff${x.status}`)} ${x.status} (${x.vuln})`;
-      return x.plain;
-    }).join('\n') : 'Nothing.');
-
-  updatePresence(guideData.name);
-
-  sendMessage(msg, { embed });
-};
-
-const guided = (msg, args, opts) => {
-  opts.desc = true;
-  guide(msg, args, opts);
-};
-
 const commands = {
   '?item': item,
   '?itemd': itemd,
   '?boss': guide,
   '?bossd': guided,
   '?char': char,
-  '?chard': chard
+  '?chard': chard,
+
+  '?room': room,
+  '?contribute': contribute
 };
 
 const determineRegion = (msg) => {
@@ -224,8 +94,11 @@ client.on('ready', () => {
 
   const allEmoji = client.emojis.filter(emoji => emoji.name.startsWith('sbr'));
   allEmoji.forEach(emoji => {
+    emojiInstHash[emoji.name] = emoji;
     emojiHash[emoji.name] = emoji.toString();
   });
+
+  roomInit(client);
 });
 
 client.on('message', async msg => {
@@ -233,19 +106,24 @@ client.on('message', async msg => {
   const content = msg.content;
   let region = determineRegion(msg);
 
-  let cmd = (content.split(' ')[0] || '').toLowerCase();
+  let cmd = (content.split(' ')[0] || '').toLowerCase().trim();
   const args = content.slice(content.indexOf(' ') + 1);
 
   if(cmd.includes('jp')) {
     region = 'jp';
     cmd = cmd.split('jp').join('');
   }
+
+  if(cmd.includes('gl')) {
+    region = 'gl';
+    cmd = cmd.split('gl').join('');
+  }
   
   if(!commands[cmd]) return;
 
   await tryRefreshAPI();
 
-  commands[cmd](msg, args, { region });
+  commands[cmd](client, msg, args, { cmd, region, currentData });
 });
 
 client.on('error', err => console.error(err));
