@@ -12,11 +12,13 @@ const roomInit = (client) => {
     const { message } = reaction;
     const { content, reactions } = message;
 
+    if(!content.includes('Members')) return;
+
     let users = [];
 
     reactions.forEach(react => {
       react.users.forEach(user => {
-        if(user.bot) return;
+        if(user.bot || !react.emoji.name.includes('sbr')) return;
 
         const userRef = `<@${user.id}>`;
         const emojiRef = `<:${react.emoji.name}:${react.emoji.id}>`;
