@@ -4,7 +4,7 @@ const FuzzySet = require('fuzzyset.js');
 
 const { ASSET_URL, weaponHash, getEmoji, updatePresence, sendMessage } = require('../shared');
 
-const charSet = new FuzzySet();
+let charSet = new FuzzySet();
 const charHash = {};
 
 const char = (client, msg, args, { region, desc }) => {
@@ -51,4 +51,6 @@ const chard = (client, msg, args, opts) => {
   char(client, msg, args, opts);
 };
 
-module.exports = { char, chard, charHash, charSet };
+const charReset = () => charSet = new FuzzySet();
+
+module.exports = { char, chard, charHash, charSet, charReset };

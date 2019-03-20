@@ -4,7 +4,7 @@ const FuzzySet = require('fuzzyset.js');
 
 const { ASSET_URL, getEmoji, updatePresence, sendMessage } = require('../shared');
 
-const guideSet = new FuzzySet();
+let guideSet = new FuzzySet();
 const guideHash = {};
 
 const guide = (client, msg, args, { region, desc }) => {
@@ -46,4 +46,6 @@ const guided = (client, msg, args, opts) => {
   guide(client, msg, args, opts);
 };
 
-module.exports = { guide, guided, guideSet, guideHash };
+const guideReset = () => guideSet = new FuzzySet();
+
+module.exports = { guide, guided, guideSet, guideHash, guideReset };

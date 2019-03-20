@@ -4,9 +4,9 @@ const Discord = require('discord.js');
 
 const { API_URL, weaponHash, emojiHash, emojiInstHash } = require('./shared');
 
-const { guideSet, guideHash, guide, guided } = require('./commands/guide');
-const { itemSet, itemHash, item, itemd } = require('./commands/item');
-const { charSet, charHash, char, chard } = require('./commands/char');
+const { guideSet, guideHash, guide, guided, guideReset } = require('./commands/guide');
+const { itemSet, itemHash, item, itemd, itemReset } = require('./commands/item');
+const { charSet, charHash, char, chard, charReset } = require('./commands/char');
 
 const { roomInit, room } = require('./commands/room');
 const { contribute } = require('./commands/contribute');
@@ -17,6 +17,10 @@ let currentAPICommit = '';
 let currentData = {};
 
 const refreshAPI = async () => {
+  guideReset();
+  itemReset();
+  charReset();
+  
   const { allItems, allCharacters, allGuides, root } = (await axios.get(API_URL)).data;
   currentData = { allItems, allCharacters, allGuides };
 
