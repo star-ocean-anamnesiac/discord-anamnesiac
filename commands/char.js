@@ -11,13 +11,13 @@ const charHash = {};
 const char = (client, msg, args, { region, desc }) => {
   const ref = getCharSet().get(args);
   if(!ref) {
-    msg.reply(`Sorry, there isn't anything like "${args}" in my character database.`);
+    msg.reply(`Sorry, there isn't anything like "${args}" in my character database. Check out how to add it with \`?contribute\`!`);
     return;
   }
 
   const charData = charHash[`${ref[0][1]}.${region}`];
   if(!charData) {
-    msg.reply(`Sorry, there isn't anything like "${args}" in my char database in region "${region.toUpperCase()}".`);
+    msg.reply(`Sorry, there isn't anything like "${args}" in my char database in region "${region.toUpperCase()}". Check out how to add it with \`?contribute\`!`);
     return;
   }
 

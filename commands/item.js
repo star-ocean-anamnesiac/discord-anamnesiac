@@ -11,13 +11,13 @@ const itemHash = {};
 const item = (client, msg, args, { region, desc }) => {
   const ref = getItemSet().get(args);
   if(!ref) {
-    msg.reply(`Sorry, there isn't anything like "${args}" in my item database.`);
+    msg.reply(`Sorry, there isn't anything like "${args}" in my item database. Check out how to add it with \`?contribute\`!`);
     return;
   }
 
   const itemData = itemHash[`${ref[0][1]}.${region}`];
   if(!itemData) {
-    msg.reply(`Sorry, there isn't anything like "${args}" in my item database in region "${region.toUpperCase()}".`);
+    msg.reply(`Sorry, there isn't anything like "${args}" in my item database in region "${region.toUpperCase()}". Check out how to add it with \`?contribute\`!`);
     return;
   }
 
