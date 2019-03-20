@@ -36,13 +36,16 @@ const refreshAPI = async () => {
 
     if(char.awakened) {
       aliases.push(`awk ${firstName}`);
+      aliases.push(`a ${firstName}`);
+      aliases.push(`a${firstName}`);
     }
     
     // holiday aliases
     if(char.name.includes('(')) {
       const holiday = char.name.split('(')[1].split(')')[0];
       aliases.push(`${holiday} ${firstName}`);
-      aliases.push(`${holiday.substring(0, 1)} ${firstName}`)
+      aliases.push(`${holiday.substring(0, 1)} ${firstName}`);
+      aliases.push(`${holiday.substring(0, 1)}${firstName}`);
 
     // first name alias
     } else {
