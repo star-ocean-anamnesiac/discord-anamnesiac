@@ -23,7 +23,7 @@ const guide = (client, msg, args, { region, desc }) => {
 
   const embed = new Discord.RichEmbed()
     .setAuthor(`${guideData.name} [${guideData.cat.toUpperCase()}]`, `${ASSET_URL}/icons/enemytypes/type-${guideData.race.toLowerCase()}.png`)
-    .setDescription(desc ? guideData.desc.substring(0, 2048) : '')
+    .setDescription(desc ? (guideData.desc || 'No notes entered.').substring(0, 2048) : '')
     .setThumbnail(`${ASSET_URL}/bosses/boss_${guideData.image}.png`)
     .setTitle('See it on Anamnesiac!')
     .setURL(`https://anamnesiac.seiyria.com/boss-guides?region=${guideData.cat}&guide=${encodeURI(guideData.name)}`)

@@ -28,7 +28,7 @@ const char = (client, msg, args, { region, desc }) => {
 
   const embed = new Discord.RichEmbed()
     .setAuthor(`${charData.name} [${charData.cat.toUpperCase()}]`, `${ASSET_URL}/icons/charclass/class-${charData.type}.png`)
-    .setDescription(desc ? charData.notes.substring(0, 2048) : '')
+    .setDescription(desc ? (charData.notes || 'No notes entered.').substring(0, 2048) : '')
     .setThumbnail(`${ASSET_URL}/characters/${charData.picture}.png`)
     .setTitle('See it on Anamnesiac!')
     .setURL(`https://anamnesiac.seiyria.com/characters?region=${charData.cat}&char=${encodeURI(charData.name)}`)

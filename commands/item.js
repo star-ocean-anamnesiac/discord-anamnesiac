@@ -23,7 +23,7 @@ const item = (client, msg, args, { region, desc }) => {
 
   const embed = new Discord.RichEmbed()
     .setAuthor(`${itemData.name} [${itemData.cat.toUpperCase()}]`, `${ASSET_URL}/icons/menu/menu-${itemData.subtype}.png`)
-    .setDescription(desc ? itemData.notes.substring(0, 2048) : '')
+    .setDescription(desc ? (itemData.notes || 'No notes entered.').substring(0, 2048) : '')
     .setThumbnail(`${ASSET_URL}/items/${itemData.subtype === 'all' ? 'accessory' : itemData.subtype}/${itemData.picture}.png`)
     .setTitle('See it on Anamnesiac!')
     .setURL(`https://anamnesiac.seiyria.com/items?region=${itemData.cat}&item=${encodeURI(itemData.name)}`)
