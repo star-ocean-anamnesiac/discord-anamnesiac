@@ -30,7 +30,7 @@ const item = (client, msg, args, { region, desc }) => {
     .setFooter(ref[0][0] === 1 ? '' : `Sorry, I could not find an exact match for "${args}". This'll have to do, 'kay?`)
     .addField('About', `${getEmoji(`sbrRarity${itemData.star}`)} ${itemData.subtype === 'all' ? 'Accessory' : weaponHash[itemData.subtype]}`)
     .addField('Factors', itemData.factors.map(x => {
-      return `* ${x.desc} ${x.lb ? getEmoji(`sbrWeapon${x.lb}`) : ''} ${x.element ? getEmoji(`sbrEl${x.element}`) : ''} ${x.slayer ? getEmoji(`sbrType${x.slayer}`) : ''}`;
+      return `- ${x.desc} ${x.lb ? getEmoji(`sbrWeapon${x.lb}`) : ''} ${x.element ? getEmoji(`sbrEl${x.element}`) : ''} ${x.slayer ? getEmoji(`sbrType${x.slayer}`) : ''}`;
     }).join('\n'))
     .addField('Obtained From', itemData.obtained);
 
