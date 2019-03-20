@@ -5,10 +5,11 @@ const FuzzySet = require('fuzzyset.js');
 const { ASSET_URL, weaponHash, getEmoji, updatePresence, sendMessage } = require('../shared');
 
 let itemSet = new FuzzySet();
+const getItemSet = () => itemSet;
 const itemHash = {};
 
 const item = (client, msg, args, { region, desc }) => {
-  const ref = itemSet.get(args);
+  const ref = getItemSet().get(args);
   if(!ref) {
     msg.reply(`Sorry, there isn't anything like "${args}" in my item database.`);
     return;
@@ -45,4 +46,4 @@ const itemd = (client, msg, args, opts) => {
 
 const itemReset = () => itemSet = new FuzzySet();
 
-module.exports = { item, itemd, itemSet, itemHash, itemReset };
+module.exports = { item, itemd, getItemSet, itemHash, itemReset };

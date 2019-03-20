@@ -4,9 +4,9 @@ const Discord = require('discord.js');
 
 const { API_URL, weaponHash, emojiHash, emojiInstHash } = require('./shared');
 
-const { guideSet, guideHash, guide, guided, guideReset } = require('./commands/guide');
-const { itemSet, itemHash, item, itemd, itemReset } = require('./commands/item');
-const { charSet, charHash, char, chard, charReset } = require('./commands/char');
+const { getGuideSet, guideHash, guide, guided, guideReset } = require('./commands/guide');
+const { getItemSet, itemHash, item, itemd, itemReset } = require('./commands/item');
+const { getCharSet, charHash, char, chard, charReset } = require('./commands/char');
 
 const { roomInit, room } = require('./commands/room');
 const { contribute } = require('./commands/contribute');
@@ -29,7 +29,7 @@ const refreshAPI = async () => {
   });
 
   allItems.forEach(item => {
-    itemSet.add(item.name);
+    getItemSet().add(item.name);
     itemHash[`${item.name}.${item.cat}`] = item;
   });
 
@@ -57,13 +57,13 @@ const refreshAPI = async () => {
     }
 
     aliases.forEach(alias => {
-      charSet.add(alias);
+      getCharSet().add(alias);
       charHash[`${alias}.${char.cat}`] = char;
     });
   });
 
   allGuides.forEach(guide => {
-    guideSet.add(guide.name);
+    getGuideSet().add(guide.name);
     guideHash[`${guide.name}.${guide.cat}`] = guide;
   });
 };

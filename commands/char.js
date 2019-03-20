@@ -5,10 +5,11 @@ const FuzzySet = require('fuzzyset.js');
 const { ASSET_URL, weaponHash, getEmoji, updatePresence, sendMessage } = require('../shared');
 
 let charSet = new FuzzySet();
+const getCharSet = () => charSet;
 const charHash = {};
 
 const char = (client, msg, args, { region, desc }) => {
-  const ref = charSet.get(args);
+  const ref = getCharSet().get(args);
   if(!ref) {
     msg.reply(`Sorry, there isn't anything like "${args}" in my character database.`);
     return;
@@ -53,4 +54,4 @@ const chard = (client, msg, args, opts) => {
 
 const charReset = () => charSet = new FuzzySet();
 
-module.exports = { char, chard, charHash, charSet, charReset };
+module.exports = { char, chard, charHash, getCharSet, charReset };
