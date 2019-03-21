@@ -37,7 +37,8 @@ const char = (client, msg, args, { region, desc }) => {
   embed.addField('About', `${getEmoji(`sbrRarity${charData.star}`)} ${awk} ${charData.ace ? 'ACE' : ''} ${charData.limited ? 'Limited' : ''} - ${weaponHash[charData.weapon]} User`);
 
   charData.talents.forEach(tal => {
-    embed.addField(`Talent: ${tal.name}`, tal.effects.map(x => `- ${x.desc} ${x.all ? `(All ${x.all === true ? 'Party' : x.all})` : ''}`).join('\n'));
+    const talString = tal.shortEffects ? `- ${tal.shortEffects}` : tal.effects.map(x => `- ${x.desc} ${x.all ? `(All ${x.all === true ? 'Party' : x.all})` : ''}`).join('\n');
+    embed.addField(`Talent: ${tal.name}`, talString);
   });
 
   embed.addField(`Rush: ${charData.rush.name}`, charData.rush.effects.map(x => `- ${x.desc} ${x.all ? `(All ${x.all === true ? 'Party' : x.all})` : ''}`).join('\n'))
