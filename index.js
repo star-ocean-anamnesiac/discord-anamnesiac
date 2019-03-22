@@ -47,9 +47,10 @@ const refreshAPI = async () => {
     // holiday aliases
     if(char.name.includes('(')) {
       const holiday = char.name.split('(')[1].split(')')[0];
+      const shortHoliday = holiday.split(' ').map(x => x.substring(0, 1)).join('');
       aliases.push(`${holiday} ${firstName}`);
-      aliases.push(`${holiday.substring(0, 1)} ${firstName}`);
-      aliases.push(`${holiday.substring(0, 1)}${firstName}`);
+      aliases.push(`${shortHoliday} ${firstName}`);
+      aliases.push(`${shortHoliday}${firstName}`);
 
     // first name alias
     } else {
