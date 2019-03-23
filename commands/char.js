@@ -74,6 +74,8 @@ const charc = (client, msg, args, { region }) => {
   if(!charData) return;
 
   const imgUrl = `${ASSET_URL}/cards/${charData.picture}-${charData.cat}.webp`;
+  
+  updatePresence(client, charData.name);
 
   sendMessage(msg, {
     files: [imgUrl]
