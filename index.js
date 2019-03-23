@@ -6,7 +6,7 @@ const { API_URL, weaponHash, emojiHash, emojiInstHash } = require('./shared');
 
 const { getGuideSet, guideHash, guide, guided, guideReset } = require('./commands/guide');
 const { getItemSet, itemHash, item, itemd, itemReset } = require('./commands/item');
-const { getCharSet, charHash, char, chard, charReset } = require('./commands/char');
+const { getCharSet, charHash, char, chard, charc, charReset } = require('./commands/char');
 
 const { roomInit, room } = require('./commands/room');
 const { contribute } = require('./commands/contribute');
@@ -86,6 +86,7 @@ const commands = {
   '?bossd': guided,
   '?char': char,
   '?chard': chard,
+  '?charc': charc,
 
   '?room': room,
   '?contribute': contribute
