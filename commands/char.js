@@ -57,7 +57,8 @@ const char = (client, msg, args, { region, desc }) => {
     embed.addField(`Talent: ${tal.name}`, talString);
   });
 
-  embed.addField(`Rush: ${charData.rush.name}`, charData.rush.effects.map(x => `- ${x.desc} ${x.all ? `(All ${x.all === true ? 'Party' : x.all})` : ''}`).join('\n'))
+  const baseRushStr = `Power: ${getEmoji(`sbrEl${charData.rush.element || 'None'}`)} ${charData.rush.power}\n`;
+  embed.addField(`Rush: ${charData.rush.name}`, baseRushStr + charData.rush.effects.map(x => `- ${x.desc} ${x.all ? `(All ${x.all === true ? 'Party' : x.all})` : ''}`).join('\n'))
 
   updatePresence(client, charData.name);
 
@@ -74,7 +75,7 @@ const charc = (client, msg, args, { region }) => {
   if(!charData) return;
 
   const imgUrl = `${ASSET_URL}/cards/${charData.picture}-${charData.cat}.webp`;
-  
+
   updatePresence(client, charData.name);
 
   sendMessage(msg, {
