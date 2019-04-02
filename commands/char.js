@@ -73,8 +73,7 @@ const chard = (client, msg, args, opts) => {
 const charc = (client, msg, args, { region }) => {
   const { charData } = getChar(msg, args, region);
   if(!charData) return;
-
-  const imgUrl = `${ASSET_URL}/cards/${charData.picture}-${charData.cat}.webp`;
+  const imgUrl = `${ASSET_URL}/cards/${charData.picture}-${charData.awakened ? 'a-' : ''}${charData.cat}.png`;
 
   updatePresence(client, charData.name);
 

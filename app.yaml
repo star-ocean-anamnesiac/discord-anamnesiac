@@ -1,5 +1,0 @@
-env: flex
-runtime: nodejs
-service: default
-manual_scaling:
-  instances: 1
