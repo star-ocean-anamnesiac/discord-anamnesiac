@@ -65,7 +65,9 @@ const refreshAPI = async () => {
 
   allGuides.forEach(guide => {
     getGuideSet().add(guide.name);
+    getGuideSet().add(guide.eventName);
     guideHash[`${guide.name}.${guide.cat}`] = guide;
+    guideHash[`${guide.eventName}.${guide.cat}`] = guide;
   });
 };
 
