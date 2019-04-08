@@ -58,7 +58,8 @@ const char = (client, msg, args, { region, desc }) => {
   });
 
   const baseRushStr = `Power: ${getEmoji(`sbrEl${charData.rush.element || 'None'}`)} ${charData.rush.power}\n`;
-  embed.addField(`Rush: ${charData.rush.name}`, baseRushStr + charData.rush.effects.map(x => `- ${x.desc} ${x.all ? `(${x.all === true ? 'Party' : x.all})` : ''}`).join('\n'))
+  const rushStr = charData.rush.shortEffects ? charData.rush.shortEffects : charData.rush.effects.map(x => `- ${x.desc} ${x.all ? `(${x.all === true ? 'Party' : x.all})` : ''}`).join('\n');
+  embed.addField(`Rush: ${charData.rush.name}`, baseRushStr + rushStr);
 
   updatePresence(client, charData.name);
 
