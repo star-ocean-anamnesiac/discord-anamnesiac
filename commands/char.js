@@ -120,7 +120,9 @@ const buildEmbedForChar = (charData, exactMatch, args, desc) => {
   });
 
   const baseRushStr = `Power: ${getEmoji(`sbrEl${charData.rush.element || 'None'}`)} ${charData.rush.power}\n`;
-  embed.addField(`Rush: ${charData.rush.name}`, baseRushStr + charData.rush.effects.map(x => `- ${x.desc} ${x.all ? `(${x.all === true ? 'Party' : x.all})` : ''}`).join('\n'))
+
+  const rushStr = charData.rush.shortEffects ? charData.rush.shortEffects : charData.rush.effects.map(x => `- ${x.desc} ${x.all ? `(${x.all === true ? 'Party' : x.all})` : ''}`).join('\n');
+  embed.addField(`Rush: ${charData.rush.name}`, baseRushStr + rushStr);
 
   return embed;
 };
@@ -160,7 +162,7 @@ const chard = (client, msg, args, opts) => {
 const charc = (client, msg, args, { region }) => {
   const { charData } = getChar(msg, args, region);
   if(!charData) return;
-  const imgUrl = `${ASSET_URL}/cards/${charData.picture}-${charData.awakened ? 'a-' : ''}${charData.cat}.png`;
+  const imgUrl = `${ASSET_URL}/cards/${charData.picture}-${charData.type}-${charData.awakened ? 'a-' : ''}${charData.cat}.png`;
 
   updatePresence(client, charData.name);
 
