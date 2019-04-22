@@ -25,11 +25,14 @@ const sendMessage = (msg, replyData) => {
 const getAliases = (str) => {
   if(!str) return [];
 
+  str = str.toLowerCase();
+
   if(str.includes('surviving a lethal attack')) return ['guts'];
   if(str.includes('absorbs'))                   return ['lifesteal'];
-  if(str.includes('recovers'))                  return ['regen'];
+  if(str.includes('of max hp'))                 return ['regen'];
   if(str.includes('evasion'))                   return ['agility'];
-  if(str.includes('ap consumption'))            return ['ap', 'ap cost'];
+  if(str.includes('ap consumption'))            return ['ap cost'];
+  if(str.includes('some ap'))                   return ['ap gen'];
   if(str.includes('no flinching'))              return ['anti-flinch', 'super armor'];
   if(str.includes('evasion possible'))          return ['air dodge'];
 

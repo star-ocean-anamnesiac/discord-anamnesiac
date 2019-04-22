@@ -74,9 +74,14 @@ const addChar = (char) => {
     specialFindMaps.semi.push(char);
   }
 
+  if(char.awakened) {
+    specialFindMaps.awk = specialFindMaps.awk || [];
+    specialFindMaps.awk.push(char);
+  }
+
   char.talents.forEach(talent => {
     talent.effects.forEach(eff => {
-      charTalentSearchSet.add(`${charId} ${eff.desc}`);
+      charTalentSearchSet.add(`${charId} ${eff.desc} ${eff.all ? (eff.all === true ? 'Party' : eff.all) : ''}`);
   
       getAliases(eff.desc).forEach(alias => charTalentSearchSet.add(`${charId} ${alias}`));
   
@@ -110,12 +115,12 @@ const buildEmbedForChar = (charData, exactMatch, args, desc) => {
   embed.addField('About', `${getEmoji(`sbrRarity${charData.star}`)} ${awk} ${charData.ace ? 'ACE' : ''} ${charData.semi ? 'Semi-' : ''}${charData.limited ? 'Limited' : ''} - ${weaponHash[charData.weapon]} User`);
 
   charData.talents.forEach(tal => {
-    const talString = tal.shortEffects ? `- ${tal.shortEffects}` : tal.effects.map(x => `- ${x.desc} ${x.all ? `(All ${x.all === true ? 'Party' : x.all})` : ''}`).join('\n');
+    const talString = tal.shortEffects ? `- ${tal.shortEffects}` : tal.effects.map(x => `- ${x.desc} ${x.all ? `(${x.all === true ? 'Party' : x.all})` : ''}`).join('\n');
     embed.addField(`Talent: ${tal.name}`, talString);
   });
 
   const baseRushStr = `Power: ${getEmoji(`sbrEl${charData.rush.element || 'None'}`)} ${charData.rush.power}\n`;
-  embed.addField(`Rush: ${charData.rush.name}`, baseRushStr + charData.rush.effects.map(x => `- ${x.desc} ${x.all ? `(All ${x.all === true ? 'Party' : x.all})` : ''}`).join('\n'))
+  embed.addField(`Rush: ${charData.rush.name}`, baseRushStr + charData.rush.effects.map(x => `- ${x.desc} ${x.all ? `(${x.all === true ? 'Party' : x.all})` : ''}`).join('\n'))
 
   return embed;
 };
@@ -198,7 +203,7 @@ const chars = (client, msg, args, { region }) => {
   new ReactionMenu.menu(
     msg.channel,
     msg.author.id,
-    [searchEmbed, ...allExistingResults.map(i => buildEmbedForChar(i, true, '', false))],
+    [searchEmbed, ...(allExistingResults.map(i => buildEmbedForChar(i, true, '', false)).slice(0, 10))],
     120000,
     reactions
   );

@@ -101,7 +101,7 @@ const items = (client, msg, args, { region }) => {
   new ReactionMenu.menu(
     msg.channel,
     msg.author.id,
-    [searchEmbed, ...allExistingResults.map(i => buildEmbedForItem(i, true, '', false))],
+    [searchEmbed, ...(allExistingResults.map(i => buildEmbedForItem(i, true, '', false)).slice(0, 10))],
     120000,
     reactions
   );
