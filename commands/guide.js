@@ -34,12 +34,12 @@ const guide = (client, msg, args, { region, desc }) => {
     .addField('Weaknesses', guideData.weaknesses ? guideData.weaknesses.map(x => {
       if(x.element) return `- ${getEmoji(`sbrEl${x.element}`)} ${x.element} (${x.percentWeakness}%)`;
       if(x.status) return `- ${getEmoji(`sbrDebuff${x.status}`)} ${x.status} (${x.vuln})`;
-      return x.plain;
+      return `- ${x.plain}`;
     }).join('\n') : 'Nothing.')
     .addField('Resistances', guideData.resistances ? guideData.resistances.map(x => {
       if(x.element) return `- ${getEmoji(`sbrEl${x.element}`)} ${x.element} (${x.percentWeakness}%)`;
       if(x.status) return `- ${getEmoji(`sbrDebuff${x.status}`)} ${x.status} (${x.vuln})`;
-      return x.plain;
+      return `- ${x.plain}`;
     }).join('\n') : 'Nothing.');
 
   updatePresence(client, guideData.name);

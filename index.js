@@ -5,8 +5,8 @@ const Discord = require('discord.js');
 const { API_URL, weaponHash, emojiHash, emojiInstHash } = require('./shared');
 
 const { getGuideSet, guideHash, guide, guided, guideReset } = require('./commands/guide');
-const { getItemSet, itemHash, item, itemd, itemReset } = require('./commands/item');
-const { getCharSet, charHash, char, chard, charc, charReset } = require('./commands/char');
+const { addItem, item, itemd, items, itemReset } = require('./commands/item');
+const { addChar, char, chard, charc, chars, charReset } = require('./commands/char');
 
 const { roomInit, room } = require('./commands/room');
 const { contribute } = require('./commands/contribute');
@@ -29,38 +29,11 @@ const refreshAPI = async () => {
   });
 
   allItems.forEach(item => {
-    getItemSet().add(item.name);
-    itemHash[`${item.name}.${item.cat}`] = item;
+    addItem(item);
   });
 
   allCharacters.forEach(char => {
-    const aliases = [char.name];
-
-    const firstName = char.name.split(' ')[0];
-
-    if(char.awakened) {
-      aliases.push(`awk ${firstName}`);
-      aliases.push(`a ${firstName}`);
-      aliases.push(`a${firstName}`);
-    }
-    
-    // holiday aliases
-    if(char.name.includes('(')) {
-      const holiday = char.name.split('(')[1].split(')')[0];
-      const shortHoliday = holiday.split(' ').map(x => x.substring(0, 1)).join('');
-      aliases.push(`${holiday} ${firstName}`);
-      aliases.push(`${shortHoliday} ${firstName}`);
-      aliases.push(`${shortHoliday}${firstName}`);
-
-    // first name alias
-    } else {
-      aliases.push(firstName);
-    }
-
-    aliases.forEach(alias => {
-      getCharSet().add(alias);
-      charHash[`${alias}.${char.cat}`] = char;
-    });
+    addChar(char);
   });
 
   allGuides.forEach(guide => {
@@ -82,11 +55,15 @@ const tryRefreshAPI = async () => {
 const commands = {
   '?item': item,
   '?itemd': itemd,
+  '?items': items,
+
   '?boss': guide,
   '?bossd': guided,
+
   '?char': char,
   '?chard': chard,
   '?charc': charc,
+  '?chars': chars,
 
   '?room': room,
   '?contribute': contribute

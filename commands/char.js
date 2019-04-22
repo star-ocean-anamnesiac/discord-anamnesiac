@@ -1,8 +1,11 @@
 
 const Discord = require('discord.js');
+const ReactionMenu = require('discord.js-reaction-menu');
 const FuzzySet = require('fuzzyset.js');
+const intersection = require('lodash.intersection');
+const compact = require('lodash.compact');
 
-const { ASSET_URL, weaponHash, getEmoji, updatePresence, sendMessage } = require('../shared');
+const { ASSET_URL, weaponHash, getEmoji, updatePresence, sendMessage, getAliases } = require('../shared');
 
 const EMBED_COLORS = {
   attacker: 0xdd7e6b,
@@ -13,28 +16,82 @@ const EMBED_COLORS = {
 };
 
 let charSet = new FuzzySet();
-const getCharSet = () => charSet;
+let charTalentSearchSet = new FuzzySet();
+let specialFindMaps = {};
+
 const charHash = {};
 
-const getChar = (msg, args, region) => {
-  const ref = getCharSet().get(args);
-  if(!ref) {
-    msg.reply(`Sorry, there isn't anything like "${args}" in my character database. Check out how to add it with \`?contribute\`!`);
-    return;
+const addChar = (char) => {
+  const aliases = [char.name];
+
+  const firstName = char.name.split(' ')[0];
+
+  if(char.awakened) {
+    aliases.push(`awk ${firstName}`);
+    aliases.push(`a ${firstName}`);
+    aliases.push(`a${firstName}`);
+  }
+  
+  // holiday aliases
+  if(char.name.includes('(')) {
+    const holiday = char.name.split('(')[1].split(')')[0];
+    const shortHoliday = holiday.split(' ').map(x => x.substring(0, 1)).join('');
+    aliases.push(`${holiday} ${firstName}`);
+    aliases.push(`${shortHoliday} ${firstName}`);
+    aliases.push(`${shortHoliday}${firstName}`);
+
+  // first name alias
+  } else {
+    aliases.push(firstName);
   }
 
-  const charData = charHash[`${ref[0][1]}.${region}`];
-  if(!charData) {
-    msg.reply(`Sorry, there isn't anything like "${args}" in my char database in region "${region.toUpperCase()}". Check out how to add it with \`?contribute\`!`);
-    return;
+  aliases.forEach(alias => {
+    charSet.add(alias);
+    charHash[`${alias}.${char.cat}`] = char;
+  });
+
+  let charId = ('000000000' + char.name.split(' ').map(s => s.substring(0, 3)).join('')).slice(-9);
+  charHash[`${charId}.${char.cat}`] = char;
+
+  specialFindMaps[char.type] = specialFindMaps[char.type] || [];
+  specialFindMaps[char.type].push(char);
+
+  specialFindMaps[char.weapon] = specialFindMaps[char.weapon] || [];
+  specialFindMaps[char.weapon].push(char.weapon);
+
+  if(char.ace) {
+    specialFindMaps.ace = specialFindMaps.ace || [];
+    specialFindMaps.ace.push(char);
   }
 
-  return { ref, charData };
-}
+  if(char.limited) {
+    specialFindMaps.limited = specialFindMaps.limited || [];
+    specialFindMaps.limited.push(char);
+  }
 
-const char = (client, msg, args, { region, desc }) => {
-  const { ref, charData } = getChar(msg, args, region);
-  if(!charData) return;
+  if(char.semi) {
+    specialFindMaps.semi = specialFindMaps.semi || [];
+    specialFindMaps.semi.push(char);
+  }
+
+  char.talents.forEach(talent => {
+    talent.effects.forEach(eff => {
+      charTalentSearchSet.add(`${charId} ${eff.desc}`);
+  
+      getAliases(eff.desc).forEach(alias => charTalentSearchSet.add(`${charId} ${alias}`));
+  
+      if(eff.element) {
+        charTalentSearchSet.add(`${charId} ${eff.element}`);
+      }
+  
+      if(eff.slayer) {
+        charTalentSearchSet.add(`${charId} ${eff.slayer}`);
+      }
+    });
+  });
+};
+
+const buildEmbedForChar = (charData, exactMatch, args, desc) => {
 
   let awk = '';
   if(charData.awakened) {
@@ -48,9 +105,9 @@ const char = (client, msg, args, { region, desc }) => {
     .setTitle('See it on Anamnesiac!')
     .setColor(EMBED_COLORS[charData.type])
     .setURL(`https://anamnesiac.seiyria.com/characters?region=${charData.cat}&char=${encodeURI(charData.name)}`)
-    .setFooter(ref[0][0] === 1 ? '' : `Sorry, I could not find an exact match for "${args}". This'll have to do, 'kay?`);
+    .setFooter(exactMatch ? '' : `Sorry, I could not find an exact match for "${args}". This'll have to do, 'kay?`);
 
-  embed.addField('About', `${getEmoji(`sbrRarity${charData.star}`)} ${awk} ${charData.ace ? 'ACE' : ''} ${charData.limited ? 'Limited' : ''} - ${weaponHash[charData.weapon]} User`);
+  embed.addField('About', `${getEmoji(`sbrRarity${charData.star}`)} ${awk} ${charData.ace ? 'ACE' : ''} ${charData.semi ? 'Semi-' : ''}${charData.limited ? 'Limited' : ''} - ${weaponHash[charData.weapon]} User`);
 
   charData.talents.forEach(tal => {
     const talString = tal.shortEffects ? `- ${tal.shortEffects}` : tal.effects.map(x => `- ${x.desc} ${x.all ? `(All ${x.all === true ? 'Party' : x.all})` : ''}`).join('\n');
@@ -59,6 +116,31 @@ const char = (client, msg, args, { region, desc }) => {
 
   const baseRushStr = `Power: ${getEmoji(`sbrEl${charData.rush.element || 'None'}`)} ${charData.rush.power}\n`;
   embed.addField(`Rush: ${charData.rush.name}`, baseRushStr + charData.rush.effects.map(x => `- ${x.desc} ${x.all ? `(All ${x.all === true ? 'Party' : x.all})` : ''}`).join('\n'))
+
+  return embed;
+};
+
+const getChar = (msg, args, region) => {
+  const ref = charSet.get(args);
+  if(!ref) {
+    msg.reply(`Sorry, there isn't anything like "${args}" in my character database. Check out how to add it with \`?contribute\`!`);
+    return {};
+  }
+
+  const charData = charHash[`${ref[0][1]}.${region}`];
+  if(!charData) {
+    msg.reply(`Sorry, there isn't anything like "${args}" in my char database in region "${region.toUpperCase()}". Check out how to add it with \`?contribute\`!`);
+    return {};
+  }
+
+  return { ref, charData };
+}
+
+const char = (client, msg, args, { region, desc }) => {
+  const { ref, charData } = getChar(msg, args, region);
+  if(!charData) return;
+
+  const embed = buildEmbedForChar(charData, ref[0][0] === 1, args, desc);
 
   updatePresence(client, charData.name);
 
@@ -82,6 +164,50 @@ const charc = (client, msg, args, { region }) => {
   });
 };
 
-const charReset = () => charSet = new FuzzySet();
+const chars = (client, msg, args, { region }) => {
+  const allResults = [];
 
-module.exports = { char, chard, charc, charHash, getCharSet, charReset };
+  const terms = args.split(',').map(x => x.trim());
+
+  terms.forEach(term => {
+    let mapped = [];
+
+    if(specialFindMaps[term]) {
+      mapped = specialFindMaps[term].filter(x => x.cat === region);
+      
+    } else {
+      const res = charTalentSearchSet.get(term, null, 0.2) || [];
+      mapped = res.map(x => charHash[`${x[1].split(' ')[0]}.${region}`]);
+    }
+
+    allResults.push(mapped);
+  });
+
+  const allExistingResults = compact(intersection(...allResults));
+
+  const mappedDesc = allExistingResults.slice(0, 10).map((char, i) => {
+    return `\`${('000' + (i + 1)).slice(-2)}.\` ${getEmoji(`sbrRarity${char.star}`)} ${getEmoji(`sbrClass${char.type.slice(0, 1).toUpperCase() + char.type.slice(1)}`)} [${char.name}](https://anamnesiac.seiyria.com/characters?region=${char.cat}&char=${encodeURI(char.name).split(')').join('%29')})`;
+  });
+
+  const searchEmbed = new Discord.RichEmbed()
+    .setTitle(`[${region.toUpperCase()}] Character search results for: ${terms.join(', ')}`)
+    .setDescription(allExistingResults.length > 0 ? mappedDesc : 'No search results found.');
+
+  const reactions = allExistingResults.length > 0 ? { first: '⏪', back: '◀', next: '▶' } : {};
+
+  new ReactionMenu.menu(
+    msg.channel,
+    msg.author.id,
+    [searchEmbed, ...allExistingResults.map(i => buildEmbedForChar(i, true, '', false))],
+    120000,
+    reactions
+  );
+};
+
+const charReset = () => {
+  charSet = new FuzzySet();
+  charTalentSearchSet = new FuzzySet();
+  specialFindMaps = {};
+};
+
+module.exports = { char, chard, charc, chars, addChar, charReset };

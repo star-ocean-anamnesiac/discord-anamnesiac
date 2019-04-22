@@ -22,6 +22,9 @@
   "dependencies": {
     "axios": "^0.18.0",
     "discord.js": "^11.4.2",
-    "fuzzyset.js": "0.0.8"
+    "discord.js-reaction-menu": "github:seiyria/discord.js-reaction-menu#patch-1",
+    "fuzzyset.js": "0.0.8",
+    "lodash.compact": "^3.0.1",
+    "lodash.intersection": "^4.4.0"
   }
 }

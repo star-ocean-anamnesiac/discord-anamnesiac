@@ -22,4 +22,18 @@ const sendMessage = (msg, replyData) => {
   return msg.channel.send(replyData);
 };
 
-module.exports = { API_URL, ASSET_URL, emojiHash, emojiInstHash, weaponHash, getEmoji, getEmojiInst, updatePresence, sendMessage };
+const getAliases = (str) => {
+  if(!str) return [];
+
+  if(str.includes('surviving a lethal attack')) return ['guts'];
+  if(str.includes('absorbs'))                   return ['lifesteal'];
+  if(str.includes('recovers'))                  return ['regen'];
+  if(str.includes('evasion'))                   return ['agility'];
+  if(str.includes('ap consumption'))            return ['ap', 'ap cost'];
+  if(str.includes('no flinching'))              return ['anti-flinch', 'super armor'];
+  if(str.includes('evasion possible'))          return ['air dodge'];
+
+  return [];
+};
+
+module.exports = { API_URL, ASSET_URL, emojiHash, emojiInstHash, weaponHash, getEmoji, getEmojiInst, updatePresence, sendMessage, getAliases };
