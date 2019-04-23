@@ -7,6 +7,7 @@ const { API_URL, weaponHash, emojiHash, emojiInstHash } = require('./shared');
 const { getGuideSet, guideHash, guide, guided, guideReset } = require('./commands/guide');
 const { addItem, item, itemd, items, itemReset } = require('./commands/item');
 const { addChar, char, chard, charc, chars, charReset } = require('./commands/char');
+const { addShop, shop, shopReset } = require('./commands/shop');
 
 const { roomInit, room } = require('./commands/room');
 const { contribute } = require('./commands/contribute');
@@ -20,9 +21,10 @@ const refreshAPI = async () => {
   guideReset();
   itemReset();
   charReset();
+  shopReset();
   
-  const { allItems, allCharacters, allGuides, root } = (await axios.get(API_URL)).data;
-  currentData = { allItems, allCharacters, allGuides };
+  const { allItems, allCharacters, allGuides, allShops, root } = (await axios.get(API_URL)).data;
+  currentData = { allItems, allCharacters, allGuides, allShops };
 
   root.weapons.forEach(({ id, name }) => {
     weaponHash[id] = name;
@@ -41,6 +43,10 @@ const refreshAPI = async () => {
     getGuideSet().add(guide.eventName);
     guideHash[`${guide.name}.${guide.cat}`] = guide;
     guideHash[`${guide.eventName}.${guide.cat}`] = guide;
+  });
+
+  allShops.forEach(shop => {
+    addShop(shop);
   });
 };
 
@@ -66,6 +72,8 @@ const commands = {
   '?chard': chard,
   '?charc': charc,
   '?chars': chars,
+
+  '?shop': shop,
 
   '?room': room,
   '?contribute': contribute
