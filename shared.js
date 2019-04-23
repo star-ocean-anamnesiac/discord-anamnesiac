@@ -34,7 +34,7 @@ const getAliases = (str) => {
   if(str.includes('ap consumption'))            return ['ap cost'];
   if(str.includes('some ap'))                   return ['ap gen'];
   if(str.includes('hitcount'))                  return ['hitcount'];
-  if(str.includes('no flinching'))              return ['anti-flinch', 'anti-flinch', 'super armor'];
+  if(str.includes('no flinching'))              return ['anti-flinch', 'anti flinch', 'super armor'];
   if(str.includes('evasion possible'))          return ['air dodge'];
 
   return [];
