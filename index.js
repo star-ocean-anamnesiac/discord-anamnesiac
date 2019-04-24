@@ -1,13 +1,15 @@
 
 const axios = require('axios');
 const Discord = require('discord.js');
+const Snoowrap = require('snoowrap');
+const { CommentStream } = require('snoostorm');
 
 const { API_URL, weaponHash, emojiHash, emojiInstHash } = require('./shared');
 
-const { getGuideSet, guideHash, guide, guided, guideReset } = require('./commands/guide');
-const { addItem, item, itemd, items, itemReset } = require('./commands/item');
-const { addChar, char, chard, charc, chars, charReset } = require('./commands/char');
-const { addShop, shop, shopReset } = require('./commands/shop');
+const { getGuideSet, guideHash, guide, guided, guideMD, guideReset } = require('./commands/guide');
+const { addItem, item, itemd, items, itemMD, itemReset } = require('./commands/item');
+const { addChar, char, chard, charc, chars, charMD, charReset } = require('./commands/char');
+const { addShop, shop, shopMD, shopReset } = require('./commands/shop');
 
 const { roomInit, room } = require('./commands/room');
 const { contribute } = require('./commands/contribute');
@@ -85,22 +87,8 @@ const determineRegion = (msg) => {
   return 'gl';
 };
 
-client.on('ready', () => {
-  console.log('Started up!');
-
-  const allEmoji = client.emojis.filter(emoji => emoji.name.startsWith('sbr'));
-  allEmoji.forEach(emoji => {
-    emojiInstHash[emoji.name] = emoji;
-    emojiHash[emoji.name] = emoji.toString();
-  });
-
-  roomInit(client);
-});
-
-client.on('message', async msg => {
-
-  const content = msg.content;
-  let region = determineRegion(msg);
+const parseCommandArgsRegion = (content, msg = null) => {
+  let region = msg ? determineRegion(msg) : 'gl';
 
   let cmd = (content.split(' ')[0] || '').toLowerCase().trim();
   const args = content.slice(content.indexOf(' ') + 1);
@@ -114,6 +102,26 @@ client.on('message', async msg => {
     region = 'gl';
     cmd = cmd.split('gl').join('');
   }
+
+  return { region, cmd, args };
+};
+
+client.on('ready', () => {
+  console.log('Discord connected!');
+
+  const allEmoji = client.emojis.filter(emoji => emoji.name.startsWith('sbr'));
+  allEmoji.forEach(emoji => {
+    emojiInstHash[emoji.name] = emoji;
+    emojiHash[emoji.name] = emoji.toString();
+  });
+
+  roomInit(client);
+});
+
+client.on('message', async msg => {
+
+  const content = msg.content;
+  const { cmd, region, args } = parseCommandArgsRegion(content, msg);
   
   if(!commands[cmd]) return;
 
@@ -124,9 +132,71 @@ client.on('message', async msg => {
 
 client.on('error', err => console.error(err));
 
+const initReddit = () => {
+  console.log('Reddit connected!');
+  
+  const client = new Snoowrap({
+    userAgent: 'discord-anamnesiac v1.x.x',
+    clientId: process.env.REDDIT_APP,
+    clientSecret: process.env.REDDIT_SECRET,
+    username: process.env.REDDIT_USERNAME,
+    password: process.env.REDDIT_PASSWORD
+  });
+
+  client.config({ requestDelay: 5000 });
+
+  const subreddit = process.env.NODE_ENV === 'production' ? 'soanamnesis' : 'testingground4bots';
+
+  // /1000 because reddits API doesn't use millis
+  const BOT_START = Date.now() / 1000;
+
+  const getRedditArgs = (msg) => {
+    return msg.split('/u/anamnesiacbot')[1].trim().split('\n')[0];
+  };
+
+  const canSummon = (msg) => {
+    return msg && msg.toLowerCase().includes('/u/anamnesiacbot');
+  };
+
+  const redditCommands = {
+    char: charMD,
+    item: itemMD,
+    shop: shopMD,
+    boss: guideMD
+  };
+
+  const comments = new CommentStream(client, { subreddit, limit: 10, pollTime: 10000 });
+  comments.on('item', async (item) => {
+    if(item.created_utc < BOT_START) return;
+    if(!canSummon(item.body)) return;
+
+    const { cmd, region, args } = parseCommandArgsRegion(getRedditArgs(item.body));
+    if(!redditCommands[cmd]) return;
+
+    await tryRefreshAPI();
+
+    const sendString = redditCommands[cmd](args, { region });
+    if(sendString) {
+      try {
+        await item.reply(sendString);
+      } catch(e) {
+        console.error(e);
+      }
+    }
+  });
+};
+
 const init = async () => {
-  const API_TOKEN = process.env.DISCORD_TOKEN;
-  client.login(API_TOKEN);
+  const DISCORD_TOKEN = process.env.DISCORD_TOKEN;
+  if(DISCORD_TOKEN) {
+    client.login(DISCORD_TOKEN);
+  }
+
+  const REDDIT_USERNAME = process.env.REDDIT_USERNAME;
+  if(REDDIT_USERNAME) {
+    initReddit();
+  }
+  
 };
 
 init();

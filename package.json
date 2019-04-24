@@ -25,6 +25,7 @@
     "discord.js-reaction-menu": "github:seiyria/discord.js-reaction-menu#patch-1",
     "fuzzyset.js": "0.0.8",
     "lodash.compact": "^3.0.1",
-    "lodash.intersection": "^4.4.0"
+    "lodash.intersection": "^4.4.0",
+    "snoostorm": "^1.0.2"
   }
 }

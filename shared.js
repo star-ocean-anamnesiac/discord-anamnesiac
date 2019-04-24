@@ -40,4 +40,12 @@ const getAliases = (str) => {
   return [];
 };
 
-module.exports = { API_URL, ASSET_URL, emojiHash, emojiInstHash, weaponHash, getEmoji, getEmojiInst, updatePresence, sendMessage, getAliases };
+const getRedditFooter = () => {
+  return `
+  
+___
+I am a bot, created by Captain /u/seiyria to help out! Concerns, questions, comments should be sent to that inbox. Want to help? [Check out our contributing guide!](https://github.com/seiyria/anamnesiac/blob/master/CONTRIBUTING.md)
+  `;
+};
+
+module.exports = { API_URL, ASSET_URL, emojiHash, emojiInstHash, weaponHash, getEmoji, getEmojiInst, updatePresence, sendMessage, getAliases, getRedditFooter };

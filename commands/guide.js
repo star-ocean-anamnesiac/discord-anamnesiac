@@ -2,13 +2,14 @@
 const Discord = require('discord.js');
 const FuzzySet = require('fuzzyset.js');
 
-const { ASSET_URL, getEmoji, updatePresence, sendMessage } = require('../shared');
+const { ASSET_URL, getEmoji, updatePresence, sendMessage, getRedditFooter } = require('../shared');
 
 let guideSet = new FuzzySet();
 const getGuideSet = () => guideSet;
 const guideHash = {};
 
-const guide = (client, msg, args, { region, desc }) => {
+const getGuide = (msg, args, region) => {
+
   const ref = getGuideSet().get(args);
   if(!ref) {
     msg.reply(`Sorry, there isn't anything like "${args}" in my guide database. Check out how to add it with \`?contribute\`!`);
@@ -20,6 +21,14 @@ const guide = (client, msg, args, { region, desc }) => {
     msg.reply(`Sorry, there isn't anything like "${args}" in my guide database in region "${region.toUpperCase()}". Check out how to add it with \`?contribute\`!`);
     return;
   }
+
+  return { ref, guideData };
+};
+
+const guide = (client, msg, args, { region, desc }) => {
+
+  const { ref, guideData } = getGuide(msg, args, region);
+  if(!guideData) return;
 
   const embed = new Discord.RichEmbed()
     .setAuthor(`${guideData.name} [${guideData.cat.toUpperCase()}]`, `${ASSET_URL}/icons/enemytypes/type-${guideData.race.toLowerCase()}.png`)
@@ -52,6 +61,53 @@ const guided = (client, msg, args, opts) => {
   guide(client, msg, args, opts);
 };
 
+const guideMD = (args, { region }) => {
+  const { ref, guideData } = getGuide(null, args, region);
+  if(!guideData) return;
+
+  const str = `
+## ${guideData.name} [${region.toUpperCase()}]
+
+^[Anamnesiac](https://anamnesiac.seiyria.com/boss-guides?region=${guideData.cat}&guide=${encodeURI(guideData.name).split(')').join('%29')})
+
+Race: ${guideData.race}
+
+### Recommendations
+
+${guideData.recommendations 
+? guideData.recommendations.map(x => `- ${x.plain || x.unit}`).join('\n') 
+: 'Nothing.'}
+
+### Inflicts
+
+${guideData.statusInflictions 
+? guideData.statusInflictions.map(x => `- ${x}`).join('\n') 
+: 'Nothing.'}
+
+### Weaknesses
+
+${guideData.weaknesses 
+? guideData.weaknesses.map(x => {
+  if(x.element) return `- ${x.element} (${x.percentWeakness}%)`;
+  if(x.status) return `- ${x.status} (${x.vuln})`;
+  return `- ${x.plain}`;
+}).join('\n') 
+: 'Nothing.'}
+
+### Resistances
+
+${guideData.resistances 
+? guideData.resistances.map(x => {
+  if(x.element) return `- ${x.element} (${x.percentWeakness}%)`;
+  if(x.status) return `- ${x.status} (${x.vuln})`;
+  return `- ${x.plain}`;
+}).join('\n') 
+: 'Nothing.'}
+`;
+
+  return str + getRedditFooter();
+}
+
 const guideReset = () => guideSet = new FuzzySet();
 
-module.exports = { guide, guided, getGuideSet, guideHash, guideReset };
+module.exports = { guide, guided, guideMD, getGuideSet, guideHash, guideReset };

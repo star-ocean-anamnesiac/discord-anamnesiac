@@ -5,7 +5,7 @@ const FuzzySet = require('fuzzyset.js');
 const intersection = require('lodash.intersection');
 const compact = require('lodash.compact');
 
-const { ASSET_URL, weaponHash, getEmoji, updatePresence, sendMessage, getAliases } = require('../shared');
+const { ASSET_URL, weaponHash, getEmoji, updatePresence, sendMessage, getAliases, getRedditFooter } = require('../shared');
 
 let itemSet = new FuzzySet();
 let itemSearchSet = new FuzzySet();
@@ -51,18 +51,26 @@ const buildEmbedForItem = (itemData, exactMatch, args, desc) => {
     .addField('Obtained From', itemData.obtained);
 };
 
-const item = (client, msg, args, { region, desc }) => {
+const getItem = (msg, args, region) => {
   const ref = itemSet.get(args);
   if(!ref) {
-    msg.reply(`Sorry, there isn't anything like "${args}" in my item database. Check out how to add it with \`?contribute\`!`);
+    if(msg) msg.reply(`Sorry, there isn't anything like "${args}" in my item database. Check out how to add it with \`?contribute\`!`);
     return {};
   }
 
   const itemData = itemHash[`${ref[0][1]}.${region}`];
   if(!itemData) {
-    msg.reply(`Sorry, there isn't anything like "${args}" in my item database in region "${region.toUpperCase()}". Check out how to add it with \`?contribute\`!`);
+    if(msg) msg.reply(`Sorry, there isn't anything like "${args}" in my item database in region "${region.toUpperCase()}". Check out how to add it with \`?contribute\`!`);
     return {};
   }
+
+  return { ref, itemData };
+}
+
+const item = (client, msg, args, { region, desc }) => {
+
+  const { ref, itemData } = getItem(msg, args, region);
+  if(!itemData) return;
 
   const embed = buildEmbedForItem(itemData, ref[0][0] === 1, args, desc);
 
@@ -108,9 +116,32 @@ const items = (client, msg, args, { region }) => {
 
 };
 
+const itemMD = (args, { region }) => {
+  const { ref, itemData } = getItem(null, args, region);
+  if(!itemData) return;
+
+  const str = `
+## ${itemData.name} [${region.toUpperCase()}]
+
+^[Anamnesiac](https://anamnesiac.seiyria.com/items?region=${itemData.cat}&item=${encodeURI(itemData.name).split(')').join('%29')})
+
+About: ${itemData.star}★ ${itemData.subtype === 'all' ? 'Accessory' : weaponHash[itemData.subtype]}
+
+Obtained: ${itemData.obtained}
+
+### Factors
+
+${itemData.factors.map(x => {
+  return `- ${x.desc} ${x.lb ? `(LB ${x.lb})` : ''}`;
+}).join('\n')}
+`;
+
+  return str + getRedditFooter();
+};
+
 const itemReset = () => {
   itemSet = new FuzzySet();
   itemSearchSet = new FuzzySet();
 };
 
-module.exports = { item, itemd, items, addItem, itemReset };
+module.exports = { item, itemd, items, itemMD, addItem, itemReset };

@@ -5,7 +5,7 @@ const FuzzySet = require('fuzzyset.js');
 const intersection = require('lodash.intersection');
 const compact = require('lodash.compact');
 
-const { ASSET_URL, weaponHash, getEmoji, updatePresence, sendMessage, getAliases } = require('../shared');
+const { ASSET_URL, weaponHash, getEmoji, updatePresence, sendMessage, getAliases, getRedditFooter } = require('../shared');
 
 const EMBED_COLORS = {
   attacker: 0xdd7e6b,
@@ -130,13 +130,13 @@ const buildEmbedForChar = (charData, exactMatch, args, desc) => {
 const getChar = (msg, args, region) => {
   const ref = charSet.get(args);
   if(!ref) {
-    msg.reply(`Sorry, there isn't anything like "${args}" in my character database. Check out how to add it with \`?contribute\`!`);
+    if(msg) msg.reply(`Sorry, there isn't anything like "${args}" in my character database. Check out how to add it with \`?contribute\`!`);
     return {};
   }
 
   const charData = charHash[`${ref[0][1]}.${region}`];
   if(!charData) {
-    msg.reply(`Sorry, there isn't anything like "${args}" in my char database in region "${region.toUpperCase()}". Check out how to add it with \`?contribute\`!`);
+    if(msg) msg.reply(`Sorry, there isn't anything like "${args}" in my char database in region "${region.toUpperCase()}". Check out how to add it with \`?contribute\`!`);
     return {};
   }
 
@@ -211,10 +211,53 @@ const chars = (client, msg, args, { region }) => {
   );
 };
 
+const charMD = (args, { region }) => {
+  const { ref, charData } = getChar(null, args, region);
+  if(!charData) return;
+
+  let awk = ''
+  if(charData.awakened) awk = charData.awakened === true ? 'AWK10' : 'AWK9';
+
+  const str = `
+## ${charData.name} [${region.toUpperCase()}]
+
+^[Anamnesiac](https://anamnesiac.seiyria.com/characters?region=${charData.cat}&char=${encodeURI(charData.name).split(')').join('%29')})
+
+About: ${charData.star}★ ${awk} ${charData.ace ? 'ACE' : ''} ${charData.semi ? 'Semi-' : ''}${charData.limited ? 'Limited' : ''} - ${weaponHash[charData.weapon]} User
+
+### Talents
+
+${charData.talents.map(tal => {
+  const talString = tal.shortEffects ? `- ${tal.shortEffects}` : tal.effects.map(x => `- ${x.desc} ${x.all ? `(${x.all === true ? 'Party' : x.all})` : ''}`).join('\n');
+  return `${talString}\n`;
+}).join('\n\n')}
+
+### Skills
+
+| Skill | AP Cost | Element | Power | Hits |
+| ----- | -------:| ------- | ----- | ----:|
+${charData.skills.map(skill => {
+  return `${skill.name} | ${skill.ap} | ${skill.element || 'None'} | ${skill.power} | ${skill.maxHits}`;
+}).join('\n')}
+
+### Rush: ${charData.rush.name}
+
+Power: ${charData.rush.power} (Element: ${charData.rush.element || 'None'})
+
+${
+  charData.rush.shortEffects 
+? '- ' + charData.rush.shortEffects 
+: charData.rush.effects.map(x => `- ${x.desc} ${x.all ? `(${x.all === true ? 'Party' : x.all})` : ''}`).join('\n')
+}
+`;
+
+  return str + getRedditFooter();
+};
+
 const charReset = () => {
   charSet = new FuzzySet();
   charTalentSearchSet = new FuzzySet();
   specialFindMaps = {};
 };
 
-module.exports = { char, chard, charc, chars, addChar, charReset };
+module.exports = { char, chard, charc, chars, charMD, addChar, charReset };
