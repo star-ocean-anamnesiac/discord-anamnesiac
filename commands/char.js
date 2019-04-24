@@ -223,7 +223,7 @@ const charMD = (args, { region }) => {
 
 ^[Anamnesiac](https://anamnesiac.seiyria.com/characters?region=${charData.cat}&char=${encodeURI(charData.name).split(')').join('%29')})
 
-About: ${charData.star}★ ${awk} ${charData.ace ? 'ACE' : ''} ${charData.semi ? 'Semi-' : ''}${charData.limited ? 'Limited' : ''} - ${weaponHash[charData.weapon]} User
+About: ${charData.star}★ ${awk} ${charData.ace ? 'ACE' : ''} ${charData.semi ? 'Semi-' : ''}${charData.limited ? 'Limited' : ''} - ${weaponHash[charData.weapon]} ${charData.type}
 
 ### Talents
 
@@ -242,7 +242,7 @@ ${charData.skills.map(skill => {
 
 ### Rush: ${charData.rush.name}
 
-Power: ${charData.rush.power} (Element: ${charData.rush.element || 'None'})
+Power: ${charData.rush.power} / ${charData.rush.maxHits} Hits / Element: ${charData.rush.element || 'None'}
 
 ${
   charData.rush.shortEffects 
