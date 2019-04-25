@@ -26,6 +26,7 @@
     "fuzzyset.js": "0.0.8",
     "lodash.compact": "^3.0.1",
     "lodash.intersection": "^4.4.0",
-    "snoostorm": "^1.0.2"
+    "snoostorm": "^1.0.2",
+    "universal-analytics": "^0.4.20"
   }
 }
