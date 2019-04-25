@@ -11,27 +11,30 @@ let itemSet = new FuzzySet();
 let itemSearchSet = new FuzzySet();
 const itemHash = {};
 
+const getItemSet = () => itemSet;
+const getSearchSet = () => itemSearchSet;
+
 const addItem = (item) => {
-  itemSet.add(item.name);
+  getItemSet().add(item.name);
   itemHash[`${item.name}.${item.cat}`] = item;
 
   const itemId = item.name.split(' ').map(s => s.substring(0, 3)).join('');
   itemHash[`${itemId}.${item.cat}`] = item;
 
-  itemSearchSet.add(`${itemId} ${item.subtype === 'all' ? 'accessory' : item.subtype}`);
-  itemSearchSet.add(`${itemId} ${item.obtained}`);
+  getSearchSet().add(`${itemId} ${item.subtype === 'all' ? 'accessory' : item.subtype}`);
+  getSearchSet().add(`${itemId} ${item.obtained}`);
 
   item.factors.forEach(fact => {
-    itemSearchSet.add(`${itemId} ${fact.desc}`);
+    getSearchSet().add(`${itemId} ${fact.desc}`);
 
-    getAliases(fact.desc).forEach(alias => itemSearchSet.add(`${itemId} ${alias}`));
+    getAliases(fact.desc).forEach(alias => getSearchSet().add(`${itemId} ${alias}`));
 
     if(fact.element) {
-      itemSearchSet.add(`${itemId} ${fact.element}`);
+      getSearchSet().add(`${itemId} ${fact.element}`);
     }
 
     if(fact.slayer) {
-      itemSearchSet.add(`${itemId} ${fact.slayer}`);
+      getSearchSet().add(`${itemId} ${fact.slayer}`);
     }
   });
 };
@@ -52,7 +55,7 @@ const buildEmbedForItem = (itemData, exactMatch, args, desc) => {
 };
 
 const getItem = (msg, args, region) => {
-  const ref = itemSet.get(args);
+  const ref = getItemSet().get(args);
   if(!ref) {
     if(msg) msg.reply(`Sorry, there isn't anything like "${args}" in my item database. Check out how to add it with \`?contribute\`!`);
     return {};
@@ -90,7 +93,7 @@ const items = (client, msg, args, { region }) => {
   const terms = args.split(',').map(x => x.trim());
 
   terms.forEach(term => {
-    const res = itemSearchSet.get(term, null, 0.1);
+    const res = getSearchSet().get(term, null, 0.1);
     allResults.push(res.map(x => itemHash[`${x[1].split(' ')[0]}.${region}`]));
   });
 

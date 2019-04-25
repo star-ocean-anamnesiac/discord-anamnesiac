@@ -7,11 +7,13 @@ const { ASSET_URL, getEmoji, updatePresence, sendMessage, getRedditFooter } = re
 let shopSet = new FuzzySet();
 const shopHash = {};
 
+const getShopSet = () => shopSet;
+
 const addShop = (shop) => {
   const allAliases = [shop.name, ...(shop.aliases || [])];
 
   allAliases.forEach(alias => {
-    shopSet.add(alias);
+    getShopSet().add(alias);
     shopHash[`${alias}.${shop.cat}`] = shop;
   });
 };
@@ -32,7 +34,7 @@ const buildEmbedForShop = (shopData, exactMatch, args) => {
 };
 
 const getShop = (msg, args, region) => {
-  const ref = shopSet.get(args);
+  const ref = getShopSet().get(args);
   if(!ref) {
     if(msg) msg.reply(`Sorry, there isn't anything like "${args}" in my shop database. Check out how to add it with \`?contribute\`!`);
     return {};

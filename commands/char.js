@@ -19,6 +19,9 @@ let charSet = new FuzzySet();
 let charTalentSearchSet = new FuzzySet();
 let specialFindMaps = {};
 
+const getCharSet = () => charSet;
+const getSearchSet = () => charTalentSearchSet;
+
 const charHash = {};
 
 const addChar = (char) => {
@@ -46,7 +49,7 @@ const addChar = (char) => {
   }
 
   aliases.forEach(alias => {
-    charSet.add(alias);
+    getCharSet().add(alias);
     charHash[`${alias}.${char.cat}`] = char;
   });
 
@@ -81,16 +84,16 @@ const addChar = (char) => {
 
   char.talents.forEach(talent => {
     talent.effects.forEach(eff => {
-      charTalentSearchSet.add(`${charId} ${eff.desc} ${eff.all ? (eff.all === true ? 'Party' : eff.all) : ''}`);
+      getSearchSet().add(`${charId} ${eff.desc} ${eff.all ? (eff.all === true ? 'Party' : eff.all) : ''}`);
   
-      getAliases(eff.desc).forEach(alias => charTalentSearchSet.add(`${charId} ${alias}`));
+      getAliases(eff.desc).forEach(alias => getSearchSet().add(`${charId} ${alias}`));
   
       if(eff.element) {
-        charTalentSearchSet.add(`${charId} ${eff.element}`);
+        getSearchSet().add(`${charId} ${eff.element}`);
       }
   
       if(eff.slayer) {
-        charTalentSearchSet.add(`${charId} ${eff.slayer}`);
+        getSearchSet().add(`${charId} ${eff.slayer}`);
       }
     });
   });
@@ -128,7 +131,7 @@ const buildEmbedForChar = (charData, exactMatch, args, desc) => {
 };
 
 const getChar = (msg, args, region) => {
-  const ref = charSet.get(args);
+  const ref = getCharSet().get(args);
   if(!ref) {
     if(msg) msg.reply(`Sorry, there isn't anything like "${args}" in my character database. Check out how to add it with \`?contribute\`!`);
     return {};
@@ -183,7 +186,7 @@ const chars = (client, msg, args, { region }) => {
       mapped = specialFindMaps[term].filter(x => x.cat === region);
       
     } else {
-      const res = charTalentSearchSet.get(term, null, 0.2) || [];
+      const res = getSearchSet().get(term, null, 0.2) || [];
       mapped = res.map(x => charHash[`${x[1].split(' ')[0]}.${region}`]);
     }
 
