@@ -28,6 +28,7 @@ const addChar = (char) => {
   const aliases = [char.name];
 
   const firstName = char.name.split(' ')[0];
+  let holiday = '';
 
   if(char.awakened) {
     aliases.push(`awk ${firstName}`);
@@ -37,7 +38,7 @@ const addChar = (char) => {
   
   // holiday aliases
   if(char.name.includes('(')) {
-    const holiday = char.name.split('(')[1].split(')')[0];
+    holiday = char.name.split('(')[1].split(')')[0];
     const shortHoliday = holiday.split(' ').map(x => x.substring(0, 1)).join('');
     aliases.push(`${holiday} ${firstName}`);
     aliases.push(`${shortHoliday} ${firstName}`);
@@ -80,6 +81,10 @@ const addChar = (char) => {
   if(char.awakened) {
     specialFindMaps.awk = specialFindMaps.awk || [];
     specialFindMaps.awk.push(char);
+  }
+  
+  if(holiday) {
+    getSearchSet().add(`${charId} ${holiday}`);
   }
 
   char.talents.forEach(talent => {
