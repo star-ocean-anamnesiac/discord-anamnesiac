@@ -61,7 +61,7 @@ const addChar = (char) => {
   specialFindMaps[char.type].push(char);
 
   specialFindMaps[char.weapon] = specialFindMaps[char.weapon] || [];
-  specialFindMaps[char.weapon].push(char.weapon);
+  specialFindMaps[char.weapon].push(char);
 
   if(char.ace) {
     specialFindMaps.ace = specialFindMaps.ace || [];
