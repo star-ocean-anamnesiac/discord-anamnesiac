@@ -86,6 +86,8 @@ const addChar = (char) => {
   if(holiday) {
     getSearchSet().add(`${charId} ${holiday}`);
   }
+  
+  getSearchSet().add(`${charId} ${firstName}`);
 
   char.talents.forEach(talent => {
     talent.effects.forEach(eff => {
