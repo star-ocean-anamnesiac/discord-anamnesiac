@@ -130,8 +130,21 @@ const buildEmbedForChar = (charData, exactMatch, args, desc) => {
   });
 
   const baseRushStr = `Power: ${getEmoji(`sbrEl${charData.rush.element || 'None'}`)} ${charData.rush.power}\n`;
+  
+  let rushStr = '';
+  if(charData.rush.shortEffects) {
+    rushStr = charData.rush.shortEffects;
+  } else {
+    rushStr = charData.rush.effects.map(x => {
+      const base = x.desc;
+      const effDurString = x.duration ? `/${x.duration}s` : '';
+      if(x.all) {
+        return `- ${base} (${x.all === true ? 'Party' : x.all }${effDurString})`;
+      }
+      return `- ${base}${effDurString ? ' (Self' + effDurString + ')' : ''}`;
+    }).join('\n');
+  }
 
-  const rushStr = charData.rush.shortEffects ? charData.rush.shortEffects : charData.rush.effects.map(x => `- ${x.desc} ${x.all ? `(${x.all === true ? 'Party' : x.all})` : ''}`).join('\n');
   embed.addField(`Rush: ${charData.rush.name}`, baseRushStr + rushStr);
 
   return embed;
