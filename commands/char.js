@@ -244,7 +244,7 @@ const charMD = (args, { region }) => {
   const str = `
 ## ${charData.name} [${region.toUpperCase()}]
 
-^[Anamnesiac](https://anamnesiac.seiyria.com/characters?region=${charData.cat}&char=${encodeURI(charData.name).split(')').join('%29')})
+^[Anamnesiac](https://anamnesiac.seiyria.com/characters?char=${encodeURI(charData.name).split(')').join('%29')}&region=${charData.cat})
 
 About: ${charData.star}★ ${awk} ${charData.ace ? 'ACE' : ''} ${charData.semi ? 'Semi-' : ''}${charData.limited ? 'Limited' : ''} - ${weaponHash[charData.weapon]} ${charData.type}
 
@@ -270,7 +270,7 @@ Power: ${charData.rush.power} / ${charData.rush.maxHits} Hits / Element: ${charD
 ${
   charData.rush.shortEffects 
 ? '- ' + charData.rush.shortEffects 
-: charData.rush.effects.map(x => `- ${x.desc} ${x.all ? `(${x.all === true ? 'Party' : x.all})` : ''}`).join('\n')
+: charData.rush.effects.map(x => `- ${x.desc} ${x.all ? `(${x.all === true ? 'Party' : x.all})` : ''}/${x.duration}s`).join('\n')
 }
 `;
 
