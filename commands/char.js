@@ -4,6 +4,7 @@ const ReactionMenu = require('discord.js-reaction-menu');
 const FuzzySet = require('fuzzyset.js');
 const intersection = require('lodash.intersection');
 const compact = require('lodash.compact');
+const uniqBy = require('lodash.uniqby');
 
 const { ASSET_URL, weaponHash, getEmoji, updatePresence, sendMessage, getAliases, getRedditFooter } = require('../shared');
 
@@ -171,6 +172,54 @@ const charc = (client, msg, args, { region }) => {
   });
 };
 
+const charq = (client, msg, args, { region }) => {
+  const chars = uniqBy(Object.keys(charHash).map(x => charHash[x]).filter(x => x.cat === region), x => x.name);
+  const embed = new Discord.RichEmbed()
+    .setAuthor(`[${region.toUpperCase()}] Character Stats (${chars.length})`);
+
+  embed.addField('By Type', `Sorted by character type`);
+
+  const types = ['Attacker', 'Defender', 'Healer', 'Invoker', 'Sharpshooter'];
+  const criteria = [
+    { name: '3*',           prefix: () => 'sbrRarity3', filter: x => x.star === 3 },
+    { name: '4*',           prefix: () => 'sbrRarity4', filter: x => x.star === 4 },
+    { name: '5*',           prefix: () => 'sbrRarity5', filter: x => x.star === 5 },
+    { name: 'Permanent',    prefix: () => 'sbrElNone', filter: x => !x.limited },
+    { name: 'Limited',      prefix: () => 'sbrElNone', filter: x => x.limited },
+    { name: 'Semi-Limited', prefix: () => 'sbrElNone', filter: x => x.semi },
+    { name: 'Ace',          prefix: () => 'sbrElNone', filter: x => x.ace },
+    { name: 'Awakened',     prefix: () => 'sbrAwk10', filter: x => x.awakened }
+  ];
+
+  types.forEach(type => {
+    const allOfType = chars.filter(x => x.type === type.toLowerCase());
+
+    const string = criteria.map(x => {
+      const count = allOfType.filter(x.filter).length;
+      return `${getEmoji(x.prefix())} ${x.name} (${count})`;
+    });
+
+    embed.addField(`${getEmoji(`sbrClass${type}`)} ${type} (${allOfType.length})`, string, true);
+  });
+
+  embed.addBlankField();
+  embed.addField('By Weapon', `Sorted by character weapon`);
+
+  types.forEach(type => {
+    const allOfType = chars.filter(x => x.type === type.toLowerCase());
+
+    const string = Object.keys(weaponHash).map(x => {
+      const count = allOfType.filter(y => y.weapon === x).length;
+      const capType = x.slice(0, 1).toUpperCase() + x.slice(1);
+      return count > 0 ? `${getEmoji(`sbrItem${capType}`)} ${weaponHash[x]} (${count})` : '';
+    }).filter(x => x);
+
+    embed.addField(`${getEmoji(`sbrClass${type}`)} ${type} (${allOfType.length})`, string, true);
+  });
+
+  sendMessage(msg, { embed });
+};
+
 const chars = (client, msg, args, { region }) => {
   const allResults = [];
 
@@ -260,4 +309,4 @@ const charReset = () => {
   specialFindMaps = {};
 };
 
-module.exports = { char, chard, charc, chars, charMD, addChar, charReset };
+module.exports = { char, chard, charc, chars, charq, charMD, addChar, charReset };

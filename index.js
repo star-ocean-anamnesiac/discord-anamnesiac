@@ -6,9 +6,9 @@ const { CommentStream } = require('snoostorm');
 
 const { API_URL, weaponHash, emojiHash, emojiInstHash } = require('./shared');
 
-const { getGuideSet, guideHash, guide, guided, guideMD, guideReset } = require('./commands/guide');
-const { addItem, item, itemd, items, itemMD, itemReset } = require('./commands/item');
-const { addChar, char, chard, charc, chars, charMD, charReset } = require('./commands/char');
+const { getGuideSet, guideHash, guide, guided, guideq, guideMD, guideReset } = require('./commands/guide');
+const { addItem, item, itemd, itemq, items, itemMD, itemReset } = require('./commands/item');
+const { addChar, char, chard, charc, chars, charq, charMD, charReset } = require('./commands/char');
 const { addShop, shop, shopMD, shopReset } = require('./commands/shop');
 
 const { roomInit, room } = require('./commands/room');
@@ -66,14 +66,17 @@ const commands = {
   '?item': item,
   '?itemd': itemd,
   '?items': items,
+  '?itemq': itemq,
 
   '?boss': guide,
   '?bossd': guided,
+  '?bossq': guideq,
 
   '?char': char,
   '?chard': chard,
   '?charc': charc,
   '?chars': chars,
+  '?charq': charq,
 
   '?shop': shop,
 

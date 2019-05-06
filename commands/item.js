@@ -5,7 +5,7 @@ const FuzzySet = require('fuzzyset.js');
 const intersection = require('lodash.intersection');
 const compact = require('lodash.compact');
 
-const { ASSET_URL, weaponHash, getEmoji, updatePresence, sendMessage, getAliases, getRedditFooter } = require('../shared');
+const { ASSET_URL, weaponHash, getEmoji, updatePresence, sendMessage, getAliases, getRedditFooter, flatUniqPakt } = require('../shared');
 
 let itemSet = new FuzzySet();
 let itemSearchSet = new FuzzySet();
@@ -116,6 +116,30 @@ const items = (client, msg, args, { region }) => {
 
 };
 
+const itemq = (client, msg, args, { region }) => {
+  const items = Object.keys(itemHash).map(x => itemHash[x]).filter(x => x.cat === region);
+  const embed = new Discord.RichEmbed()
+    .setAuthor(`[${region.toUpperCase()}] Item Stats (${items.length})`);
+
+  const allTypes = flatUniqPakt(items.map(x => x.subtype));
+  embed.addField('Types', Object.keys(allTypes).map(x => {
+    const type = x === 'all' ? 'Accessory' : x.slice(0, 1).toUpperCase() + x.slice(1);
+    return `${getEmoji(`sbrItem${type}`)} ${weaponHash[x] || 'Accessory'} (${allTypes[x]})`;
+  }), true);
+
+  const allElements = flatUniqPakt(items.map(i => i.factors.map(x => x.element)));
+  embed.addField('Elements', Object.keys(allElements).map(x => {
+    return `${getEmoji(`sbrEl${x}`)} ${x} (${allElements[x]})`;
+  }), true);
+
+  const allSlayers = flatUniqPakt(items.map(i => i.factors.map(x => x.slayer)));
+  embed.addField('Slayers', Object.keys(allSlayers).map(x => {
+    return `${getEmoji(x === 'None' ? 'sbrElNone' : `sbrType${x}`)} ${x} (${allSlayers[x]})`;
+  }), true);
+
+  sendMessage(msg, { embed });
+};
+
 const itemMD = (args, { region }) => {
   const { ref, itemData } = getItem(null, args, region);
   if(!itemData) return;
@@ -144,4 +168,4 @@ const itemReset = () => {
   itemSearchSet = new FuzzySet();
 };
 
-module.exports = { item, itemd, items, itemMD, addItem, itemReset };
+module.exports = { item, itemd, items, itemq, itemMD, addItem, itemReset };

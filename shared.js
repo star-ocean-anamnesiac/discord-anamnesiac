@@ -1,4 +1,7 @@
 
+const groupBy = require('lodash.groupby');
+const flatten = require('lodash.flatten');
+
 const API_URL = 'https://anamnesiac.seiyria.com/data';
 const ASSET_URL = 'https://anamnesiac.seiyria.com/assets';
 
@@ -48,4 +51,12 @@ I am a bot, created by Captain /u/seiyria to help out! Concerns, questions, comm
   `;
 };
 
-module.exports = { API_URL, ASSET_URL, emojiHash, emojiInstHash, weaponHash, getEmoji, getEmojiInst, updatePresence, sendMessage, getAliases, getRedditFooter };
+const flatUniqPakt = (arrs) => {
+  if(arrs.length === 0) return { None: 0 };
+  
+  const base = groupBy(flatten(arrs).filter(x => x), x => x);
+  Object.keys(base).forEach(x => base[x] = base[x].length);
+  return base;
+};
+
+module.exports = { API_URL, ASSET_URL, emojiHash, emojiInstHash, weaponHash, getEmoji, getEmojiInst, updatePresence, sendMessage, getAliases, getRedditFooter, flatUniqPakt };

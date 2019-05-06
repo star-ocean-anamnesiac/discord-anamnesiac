@@ -2,7 +2,7 @@
 const Discord = require('discord.js');
 const FuzzySet = require('fuzzyset.js');
 
-const { ASSET_URL, getEmoji, updatePresence, sendMessage, getRedditFooter } = require('../shared');
+const { ASSET_URL, getEmoji, updatePresence, sendMessage, getRedditFooter, flatUniqPakt } = require('../shared');
 
 let guideSet = new FuzzySet();
 const getGuideSet = () => guideSet;
@@ -61,6 +61,29 @@ const guided = (client, msg, args, opts) => {
   guide(client, msg, args, opts);
 };
 
+const guideq = (client, msg, args, { region }) => {
+  const guides = Object.keys(guideHash).map(x => guideHash[x]).filter(x => x.cat === region);
+  const embed = new Discord.RichEmbed()
+    .setAuthor(`[${region.toUpperCase()}] Boss Stats (${guides.length})`);
+
+  const allWeaknesses = flatUniqPakt(guides.map(x => x.weaknesses ? x.weaknesses.map(x => x.element) : []));
+  embed.addField('Weaknesses', Object.keys(allWeaknesses).map(x => {
+    return `${getEmoji(`sbrEl${x}`)} ${x} (${allWeaknesses[x]})`;
+  }), true);
+
+  const allResists = flatUniqPakt(guides.map(x => x.resistances ? x.resistances.map(x => x.element) : []));
+  embed.addField('Resistances', Object.keys(allResists).map(x => {
+    return `${getEmoji(`sbrEl${x}`)} ${x} (${allResists[x]})`;
+  }), true);
+
+  const allRaces = flatUniqPakt(guides.map(x => x.race));
+  embed.addField('Races', Object.keys(allRaces).map(x => {
+    return `${getEmoji(`sbrType${x}`)} ${x} (${allRaces[x]})`;
+  }), true);
+
+  sendMessage(msg, { embed });
+};
+
 const guideMD = (args, { region }) => {
   const { ref, guideData } = getGuide(null, args, region);
   if(!guideData) return;
@@ -110,4 +133,4 @@ ${guideData.resistances
 
 const guideReset = () => guideSet = new FuzzySet();
 
-module.exports = { guide, guided, guideMD, getGuideSet, guideHash, guideReset };
+module.exports = { guide, guided, guideq, guideMD, getGuideSet, guideHash, guideReset };
