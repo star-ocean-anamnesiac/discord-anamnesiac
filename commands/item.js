@@ -87,7 +87,7 @@ const itemd = (client, msg, args, opts) => {
 const items = (client, msg, args, { region }) => {
   const allResults = [];
 
-  const terms = args.split(',').map(x => x.trim());
+  const terms = args.split(',').map(x => x.trim().toLowerCase());
 
   terms.forEach(term => {
     const res = itemSearchSet.get(term, null, 0.1);

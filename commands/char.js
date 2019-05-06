@@ -223,7 +223,7 @@ const charq = (client, msg, args, { region }) => {
 const chars = (client, msg, args, { region }) => {
   const allResults = [];
 
-  const terms = args.split(',').map(x => x.trim());
+  const terms = args.split(',').map(x => x.trim().toLowerCase());
 
   terms.forEach(term => {
     let mapped = [];

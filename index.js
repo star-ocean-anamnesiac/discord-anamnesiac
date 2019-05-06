@@ -6,7 +6,7 @@ const { CommentStream } = require('snoostorm');
 
 const { API_URL, weaponHash, emojiHash, emojiInstHash } = require('./shared');
 
-const { getGuideSet, guideHash, guide, guided, guideq, guideMD, guideReset } = require('./commands/guide');
+const { addGuide, guide, guided, guideq, guides, guideMD, guideReset } = require('./commands/guide');
 const { addItem, item, itemd, itemq, items, itemMD, itemReset } = require('./commands/item');
 const { addChar, char, chard, charc, chars, charq, charMD, charReset } = require('./commands/char');
 const { addShop, shop, shopMD, shopReset } = require('./commands/shop');
@@ -41,10 +41,7 @@ const refreshAPI = async () => {
   });
 
   allGuides.forEach(guide => {
-    getGuideSet().add(guide.name);
-    getGuideSet().add(guide.eventName);
-    guideHash[`${guide.name}.${guide.cat}`] = guide;
-    guideHash[`${guide.eventName}.${guide.cat}`] = guide;
+    addGuide(guide);
   });
 
   allShops.forEach(shop => {
@@ -71,6 +68,7 @@ const commands = {
   '?boss': guide,
   '?bossd': guided,
   '?bossq': guideq,
+  '?bosss': guides,
 
   '?char': char,
   '?chard': chard,
