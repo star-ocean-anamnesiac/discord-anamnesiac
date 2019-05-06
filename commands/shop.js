@@ -7,32 +7,43 @@ const { ASSET_URL, getEmoji, updatePresence, sendMessage, getRedditFooter } = re
 let shopSet = new FuzzySet();
 const shopHash = {};
 
+const getShopSet = () => shopSet;
+
 const addShop = (shop) => {
   const allAliases = [shop.name, ...(shop.aliases || [])];
 
   allAliases.forEach(alias => {
-    shopSet.add(alias);
+    getShopSet().add(alias);
     shopHash[`${alias}.${shop.cat}`] = shop;
   });
 };
 
 const buildEmbedForShop = (shopData, exactMatch, args) => {
-  return new Discord.RichEmbed()
+  const embed = new Discord.RichEmbed()
     .setAuthor(`${shopData.name} [${shopData.cat.toUpperCase()}]`, `${ASSET_URL}/icons/shop/shop-${shopData.icon}.png`)
     .setFooter(exactMatch ? '' : `Sorry, I could not find an exact match for "${args}". This'll have to do, 'kay?`)
     .addField('Currency', shopData.currency)
     .addField('Total Cost', shopData.items.reduce((prev, item) => {
-      if(!item.stock) return 0;
+      if(!item.stock) return prev + 0;
       return prev + (item.stock * item.cost);
-    }, 0).toLocaleString())
-    .addField('Items', shopData.items.map(item => {
-      const emoji = item.type.includes('-') ? item.type.split('-').join('') : 'Item' + item.type.substring(0, 1).toUpperCase() + item.type.substring(1);
-      return `- ${getEmoji(`sbr${emoji}`)} ${item.name} (Cost: ${item.cost.toLocaleString()}, Stock: ${item.stock || '∞'})`
-    }).join('\n'));
+    }, 0).toLocaleString());
+
+    const formatItemList = (items) => {
+      return items.map(item => {
+        const emoji = item.type.includes('-') ? item.type.split('-').join('') : 'Item' + item.type.substring(0, 1).toUpperCase() + item.type.substring(1);
+        return `- ${getEmoji(`sbr${emoji}`)} ${item.name} (Cost: ${item.cost.toLocaleString()}, Stock: ${item.stock || '∞'})`
+      }).join('\n');
+    }
+
+    for(let i = 0; i < shopData.items.length / 10; i++) {
+      embed.addField(`Items (${i + 1})`, formatItemList(shopData.items.slice(i * 10, (i * 10) + 10)));
+    }
+
+  return embed;
 };
 
 const getShop = (msg, args, region) => {
-  const ref = shopSet.get(args);
+  const ref = getShopSet().get(args);
   if(!ref) {
     if(msg) msg.reply(`Sorry, there isn't anything like "${args}" in my shop database. Check out how to add it with \`?contribute\`!`);
     return {};

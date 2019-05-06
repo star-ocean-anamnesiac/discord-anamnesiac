@@ -1,5 +1,6 @@
 
 const axios = require('axios');
+const ua = require('universal-analytics');
 const Discord = require('discord.js');
 const Snoowrap = require('snoowrap');
 const { CommentStream } = require('snoostorm');
@@ -14,10 +15,17 @@ const { addShop, shop, shopMD, shopReset } = require('./commands/shop');
 const { roomInit, room } = require('./commands/room');
 const { contribute } = require('./commands/contribute');
 
+const visitor = process.env.GA_UID ? ua(process.env.GA_UID, 'DISCORD_BOT', { strictCidFormat: false }) : null;
 const client = new Discord.Client();
 
 let currentAPICommit = '';
 let currentData = {};
+
+const sendUAEvent = (event, search) => {
+  if(!visitor) return;
+
+  visitor.event(event, search).send();
+};
 
 const refreshAPI = async () => {
   guideReset();
@@ -127,6 +135,7 @@ client.on('message', async msg => {
   if(!commands[cmd]) return;
 
   await tryRefreshAPI();
+  sendUAEvent('Discord', cmd);
 
   commands[cmd](client, msg, args, { cmd, region, currentData });
 });
@@ -173,6 +182,7 @@ const initReddit = () => {
 
     const { cmd, region, args } = parseCommandArgsRegion(getRedditArgs(item.body));
     if(!redditCommands[cmd]) return;
+    sendUAEvent('Reddit', cmd);
 
     await tryRefreshAPI();
 

@@ -20,12 +20,16 @@ let charSet = new FuzzySet();
 let charTalentSearchSet = new FuzzySet();
 let specialFindMaps = {};
 
+const getCharSet = () => charSet;
+const getSearchSet = () => charTalentSearchSet;
+
 const charHash = {};
 
 const addChar = (char) => {
   const aliases = [char.name];
 
   const firstName = char.name.split(' ')[0];
+  let holiday = '';
 
   if(char.awakened) {
     aliases.push(`awk ${firstName}`);
@@ -35,7 +39,7 @@ const addChar = (char) => {
   
   // holiday aliases
   if(char.name.includes('(')) {
-    const holiday = char.name.split('(')[1].split(')')[0];
+    holiday = char.name.split('(')[1].split(')')[0];
     const shortHoliday = holiday.split(' ').map(x => x.substring(0, 1)).join('');
     aliases.push(`${holiday} ${firstName}`);
     aliases.push(`${shortHoliday} ${firstName}`);
@@ -47,7 +51,7 @@ const addChar = (char) => {
   }
 
   aliases.forEach(alias => {
-    charSet.add(alias);
+    getCharSet().add(alias);
     charHash[`${alias}.${char.cat}`] = char;
   });
 
@@ -58,7 +62,7 @@ const addChar = (char) => {
   specialFindMaps[char.type].push(char);
 
   specialFindMaps[char.weapon] = specialFindMaps[char.weapon] || [];
-  specialFindMaps[char.weapon].push(char.weapon);
+  specialFindMaps[char.weapon].push(char);
 
   if(char.ace) {
     specialFindMaps.ace = specialFindMaps.ace || [];
@@ -79,19 +83,25 @@ const addChar = (char) => {
     specialFindMaps.awk = specialFindMaps.awk || [];
     specialFindMaps.awk.push(char);
   }
+  
+  if(holiday) {
+    getSearchSet().add(`${charId} ${holiday}`);
+  }
+  
+  getSearchSet().add(`${charId} ${firstName}`);
 
   char.talents.forEach(talent => {
     talent.effects.forEach(eff => {
-      charTalentSearchSet.add(`${charId} ${eff.desc} ${eff.all ? (eff.all === true ? 'Party' : eff.all) : ''}`);
+      getSearchSet().add(`${charId} ${eff.desc} ${eff.all ? (eff.all === true ? 'Party' : eff.all) : ''}`);
   
-      getAliases(eff.desc).forEach(alias => charTalentSearchSet.add(`${charId} ${alias}`));
+      getAliases(eff.desc).forEach(alias => getSearchSet().add(`${charId} ${alias}`));
   
       if(eff.element) {
-        charTalentSearchSet.add(`${charId} ${eff.element}`);
+        getSearchSet().add(`${charId} ${eff.element}`);
       }
   
       if(eff.slayer) {
-        charTalentSearchSet.add(`${charId} ${eff.slayer}`);
+        getSearchSet().add(`${charId} ${eff.slayer}`);
       }
     });
   });
@@ -121,15 +131,28 @@ const buildEmbedForChar = (charData, exactMatch, args, desc) => {
   });
 
   const baseRushStr = `Power: ${getEmoji(`sbrEl${charData.rush.element || 'None'}`)} ${charData.rush.power}\n`;
+  
+  let rushStr = '';
+  if(charData.rush.shortEffects) {
+    rushStr = charData.rush.shortEffects;
+  } else {
+    rushStr = charData.rush.effects.map(x => {
+      const base = x.desc;
+      const effDurString = x.duration ? `/${x.duration}s` : '';
+      if(x.all) {
+        return `- ${base} (${x.all === true ? 'Party' : x.all }${effDurString})`;
+      }
+      return `- ${base}${effDurString ? ' (Self' + effDurString + ')' : ''}`;
+    }).join('\n');
+  }
 
-  const rushStr = charData.rush.shortEffects ? charData.rush.shortEffects : charData.rush.effects.map(x => `- ${x.desc} ${x.all ? `(${x.all === true ? 'Party' : x.all})` : ''}`).join('\n');
   embed.addField(`Rush: ${charData.rush.name}`, baseRushStr + rushStr);
 
   return embed;
 };
 
 const getChar = (msg, args, region) => {
-  const ref = charSet.get(args);
+  const ref = getCharSet().get(args);
   if(!ref) {
     if(msg) msg.reply(`Sorry, there isn't anything like "${args}" in my character database. Check out how to add it with \`?contribute\`!`);
     return {};
@@ -232,7 +255,7 @@ const chars = (client, msg, args, { region }) => {
       mapped = specialFindMaps[term].filter(x => x.cat === region);
       
     } else {
-      const res = charTalentSearchSet.get(term, null, 0.2) || [];
+      const res = getSearchSet().get(term, null, 0.2) || [];
       mapped = res.map(x => charHash[`${x[1].split(' ')[0]}.${region}`]);
     }
 
@@ -270,9 +293,9 @@ const charMD = (args, { region }) => {
   const str = `
 ## ${charData.name} [${region.toUpperCase()}]
 
-^[Anamnesiac](https://anamnesiac.seiyria.com/characters?region=${charData.cat}&char=${encodeURI(charData.name).split(')').join('%29')})
+^[Anamnesiac](https://anamnesiac.seiyria.com/characters?char=${encodeURI(charData.name).split(')').join('%29')}&region=${charData.cat})
 
-About: ${charData.star}★ ${awk} ${charData.ace ? 'ACE' : ''} ${charData.semi ? 'Semi-' : ''}${charData.limited ? 'Limited' : ''} - ${weaponHash[charData.weapon]} User
+About: ${charData.star}★ ${awk} ${charData.ace ? 'ACE' : ''} ${charData.semi ? 'Semi-' : ''}${charData.limited ? 'Limited' : ''} - ${weaponHash[charData.weapon]} ${charData.type}
 
 ### Talents
 
@@ -291,12 +314,12 @@ ${charData.skills.map(skill => {
 
 ### Rush: ${charData.rush.name}
 
-Power: ${charData.rush.power} (Element: ${charData.rush.element || 'None'})
+Power: ${charData.rush.power} / ${charData.rush.maxHits} Hits / Element: ${charData.rush.element || 'None'}
 
 ${
   charData.rush.shortEffects 
 ? '- ' + charData.rush.shortEffects 
-: charData.rush.effects.map(x => `- ${x.desc} ${x.all ? `(${x.all === true ? 'Party' : x.all})` : ''}`).join('\n')
+: charData.rush.effects.map(x => `- ${x.desc} ${x.all ? `(${x.all === true ? 'Party' : x.all})` : ''}/${x.duration}s`).join('\n')
 }
 `;
 
