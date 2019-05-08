@@ -42,6 +42,7 @@ const addChar = (char) => {
     holiday = char.name.split('(')[1].split(')')[0];
     const shortHoliday = holiday.split(' ').map(x => x.substring(0, 1)).join('');
     aliases.push(`${holiday} ${firstName}`);
+    aliases.push(`${firstName} ${holiday}`);
     aliases.push(`${shortHoliday} ${firstName}`);
     aliases.push(`${shortHoliday}${firstName}`);
 
