@@ -12,10 +12,12 @@ const guideHash = {};
 let specialFindMaps = {};
 
 const addGuide = (guide) => {
-  guideSet.add(guide.name);
-  guideSet.add(guide.eventName);
-  guideHash[`${guide.name}.${guide.cat}`] = guide;
-  guideHash[`${guide.eventName}.${guide.cat}`] = guide;
+
+  const aliases = [guide.name, guide.eventName, ...(guide.aliases || [])];
+  aliases.forEach(alias => {
+    guideSet.add(alias);
+    guideHash[`${alias}.${guide.cat}`] = guide;
+  });
 
   specialFindMaps[guide.race.toLowerCase()] = specialFindMaps[guide.race.toLowerCase()] || [];
   specialFindMaps[guide.race.toLowerCase()].push(guide);
