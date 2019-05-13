@@ -11,6 +11,7 @@ const { addGuide, guide, guided, guideq, guides, guideMD, guideReset } = require
 const { addItem, item, itemd, itemq, items, itemMD, itemReset } = require('./commands/item');
 const { addChar, char, chard, charc, chars, charq, charMD, charReset } = require('./commands/char');
 const { addShop, shop, shopMD, shopReset } = require('./commands/shop');
+const { addStamp, stamp, stampReset } = require('./commands/stamp');
 
 const { roomInit, room } = require('./commands/room');
 const { contribute } = require('./commands/contribute');
@@ -32,9 +33,10 @@ const refreshAPI = async () => {
   itemReset();
   charReset();
   shopReset();
+  stampReset();
   
-  const { allItems, allCharacters, allGuides, allShops, root } = (await axios.get(API_URL)).data;
-  currentData = { allItems, allCharacters, allGuides, allShops };
+  const { allItems, allCharacters, allGuides, allShops, allStamps, root } = (await axios.get(API_URL)).data;
+  currentData = { allItems, allCharacters, allGuides, allShops, allStamps };
 
   root.weapons.forEach(({ id, name }) => {
     weaponHash[id] = name;
@@ -55,6 +57,10 @@ const refreshAPI = async () => {
   allShops.forEach(shop => {
     addShop(shop);
   });
+
+  allStamps.forEach(stamp => {
+    addStamp(stamp);
+  })
 };
 
 const tryRefreshAPI = async () => {
@@ -85,6 +91,8 @@ const commands = {
   '?charq': charq,
 
   '?shop': shop,
+
+  '?stamp': stamp,
 
   '?room': room,
   '?contribute': contribute
