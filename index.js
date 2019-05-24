@@ -75,17 +75,17 @@ const tryRefreshAPI = async () => {
 
 const commands = {
   '?item': item,
-  '?itemd': itemd,
+  // '?itemd': itemd,
   '?items': items,
   '?itemq': itemq,
 
   '?boss': guide,
-  '?bossd': guided,
+  // '?bossd': guided,
   '?bossq': guideq,
   '?bosss': guides,
 
   '?char': char,
-  '?chard': chard,
+  // '?chard': chard,
   '?charc': charc,
   '?chars': chars,
   '?charq': charq,
