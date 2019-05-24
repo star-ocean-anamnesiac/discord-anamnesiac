@@ -200,6 +200,9 @@ ${guideData.resistances
   return str + getRedditFooter();
 }
 
-const guideReset = () => guideSet = new FuzzySet();
+const guideReset = () => {
+  guideSet = new FuzzySet();
+  specialFindMaps = {};
+};
 
 module.exports = { addGuide, guide, guided, guides, guideq, guideMD, guideHash, guideReset };
