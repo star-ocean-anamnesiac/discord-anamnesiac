@@ -43,6 +43,7 @@ const buildEmbedForGuide = (guideData, exactMatch, args, desc) => {
     .setTitle('See it on Anamnesiac!')
     .setURL(`https://anamnesiac.seiyria.com/boss-guides?region=${guideData.cat}&guide=${encodeURI(guideData.name)}`)
     .setFooter(exactMatch ? '' : `Sorry, I could not find an exact match for "${args}". This'll have to do, 'kay?`)
+    .addField('Event', guideData.eventName)
     .addField('Race', guideData.race)
     .addField('Recommendations', guideData.recommendations ? guideData.recommendations.map(x => `- ${x.plain || x.unit}`).join('\n') : 'Nothing.')
     .addField('Inflicts', guideData.statusInflictions ? guideData.statusInflictions.map(x => `- ${getEmoji(`sbrDebuff${x}`)} ${x}`).join('\n') : 'Nothing.')
