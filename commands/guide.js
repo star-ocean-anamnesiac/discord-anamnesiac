@@ -12,10 +12,12 @@ const guideHash = {};
 let specialFindMaps = {};
 
 const addGuide = (guide) => {
-  guideSet.add(guide.name);
-  guideSet.add(guide.eventName);
-  guideHash[`${guide.name}.${guide.cat}`] = guide;
-  guideHash[`${guide.eventName}.${guide.cat}`] = guide;
+
+  const aliases = [guide.name, guide.eventName, ...(guide.aliases || [])];
+  aliases.forEach(alias => {
+    guideSet.add(alias);
+    guideHash[`${alias}.${guide.cat}`] = guide;
+  });
 
   specialFindMaps[guide.race.toLowerCase()] = specialFindMaps[guide.race.toLowerCase()] || [];
   specialFindMaps[guide.race.toLowerCase()].push(guide);
@@ -41,6 +43,7 @@ const buildEmbedForGuide = (guideData, exactMatch, args, desc) => {
     .setTitle('See it on Anamnesiac!')
     .setURL(`https://anamnesiac.seiyria.com/boss-guides?region=${guideData.cat}&guide=${encodeURI(guideData.name)}`)
     .setFooter(exactMatch ? '' : `Sorry, I could not find an exact match for "${args}". This'll have to do, 'kay?`)
+    .addField('Event', guideData.eventName)
     .addField('Race', guideData.race)
     .addField('Recommendations', guideData.recommendations ? guideData.recommendations.map(x => `- ${x.plain || x.unit}`).join('\n') : 'Nothing.')
     .addField('Inflicts', guideData.statusInflictions ? guideData.statusInflictions.map(x => `- ${getEmoji(`sbrDebuff${x}`)} ${x}`).join('\n') : 'Nothing.')
@@ -198,6 +201,9 @@ ${guideData.resistances
   return str + getRedditFooter();
 }
 
-const guideReset = () => guideSet = new FuzzySet();
+const guideReset = () => {
+  guideSet = new FuzzySet();
+  specialFindMaps = {};
+};
 
 module.exports = { addGuide, guide, guided, guides, guideq, guideMD, guideHash, guideReset };

@@ -45,10 +45,27 @@ const addChar = (char) => {
   // holiday aliases
   if(char.name.includes('(')) {
     holiday = char.name.split('(')[1].split(')')[0];
-    const shortHoliday = holiday.split(' ').map(x => x.substring(0, 1)).join('');
-    aliases.push(`${holiday} ${firstName}`);
-    aliases.push(`${shortHoliday} ${firstName}`);
-    aliases.push(`${shortHoliday}${firstName}`);
+
+    if(holiday !== 'Awakened') {
+      const shortHoliday = holiday.split(' ').map(x => x.substring(0, 1)).join('');
+  
+      const holAliases = [
+        `${holiday} ${firstName}`,
+        `${firstName} ${holiday}`,
+        `${shortHoliday} ${firstName}`,
+        `${shortHoliday}${firstName}`
+      ];
+  
+      holAliases.forEach(alias => {
+        aliases.push(alias);
+
+        if(char.awakened) {
+          aliases.push(`awk ${alias}`);
+          aliases.push(`a ${alias}`);
+          aliases.push(`a${alias}`);
+        }
+      });
+    }
 
     prefixes[shortHoliday] = holiday;
 
