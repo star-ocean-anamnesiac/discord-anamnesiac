@@ -2,34 +2,28 @@
 
 const help = async (client, msg) => {
   msg.channel.send(`
-    **Character Commands**
+**Character Commands**
+* \`?char[c] <name>\` - find a character by name
+* \`?chars <query>\` - search the character database
+* \`?charq\` - print statistics about the character database
+* \`?aprefix\` - list all available prefixes in the character database
 
-    * \`?char[c] <name>\` - find a character by name
-    * \`?chars <query>\` - search the character database
-    * \`?charq\` - print statistics about the character database
-    * \`?prefix\` - list all available prefixes in the character database
-  
-    **Item Commands**
+**Item Commands**
+* \`?item <name>\` - find an item by name
+* \`?items <query>\` - search the item database
+* \`?itemq\` - print statistics about the item database
 
-    * \`?item <name>\` - find an item by name
-    * \`?items <query>\` - search the item database
-    * \`?itemq\` - print statistics about the item database
-  
-    **Boss Commands**
+**Boss Commands**
+* \`?boss <name>\` - find a boss by name
+* \`?bosss <query>\` - search the boss database
+* \`?bossq\` - print statistics about the boss database
 
-    * \`?boss <name>\` - find a boss by name
-    * \`?bosss <query>\` - search the boss database
-    * \`?bossq\` - print statistics about the boss database
-    
-    **Shop Commands**
-
-    * \`?shop\` - search a shop by name
-
-    **Other Commands**
-
-    * \`?ahelp\` - print this message
-    * \`?room <id> <message>\` - create a new room for people to join
-    * \`?contribute\` - learn how to contribute to this project
+**Other Commands**
+* \`?ahelp\` - print this message
+* \`?contribute\` - learn how to contribute to this project
+* \`?room <id> <message>\` - create a new room for people to join
+* \`?shop\` - search a shop by name
+* \`?stamp\` - search a stamp by name
   `);
 };
 

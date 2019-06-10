@@ -7,9 +7,9 @@ const { CommentStream } = require('snoostorm');
 
 const { API_URL, weaponHash, emojiHash, emojiInstHash } = require('./shared');
 
-const { addGuide, guide, guided, guideq, guides, guideMD, guideReset } = require('./commands/guide');
-const { addItem, item, itemd, itemq, items, itemMD, itemReset } = require('./commands/item');
-const { addChar, char, chard, charc, chars, charq, charp, charMD, charReset } = require('./commands/char');
+const { addGuide, guide, guideq, guides, guideMD, guideReset } = require('./commands/guide');
+const { addItem, item, itemq, items, itemMD, itemReset } = require('./commands/item');
+const { addChar, char, charc, chars, charq, charp, charMD, charReset } = require('./commands/char');
 const { addShop, shop, shopMD, shopReset } = require('./commands/shop');
 const { addStamp, stamp, stampReset } = require('./commands/stamp');
 
@@ -90,8 +90,7 @@ const commands = {
   '?charc': charc,
   '?chars': chars,
   '?charq': charq,
-
-  '?prefix': charp,
+  '?aprefix': charp,
 
   '?shop': shop,
 

@@ -39,7 +39,7 @@ const addChar = (char) => {
     aliases.push(`${firstName}A`);
     aliases.push(`${firstName} awk`);
 
-    prefixes.awk = 'Awakened';
+    prefixes.AWK = 'Awakened';
   }
   
   // holiday aliases
@@ -65,9 +65,9 @@ const addChar = (char) => {
           aliases.push(`a${alias}`);
         }
       });
-    }
 
-    prefixes[shortHoliday] = holiday;
+      prefixes[shortHoliday] = holiday;
+    }
 
   // first name alias
   } else {
@@ -269,7 +269,7 @@ const charq = (client, msg, args, { region }) => {
 
 const charp = (client, msg, args, { region }) => {
   msg.channel.send(`
-    ${Object.keys(prefixes).sort().map(p => `* ${p} -> ${prefixes[p]}`)}
+    ${Object.keys(prefixes).sort().map(p => `* ${p} -> ${prefixes[p]}`).join('\n')}
   `);
 };
 
