@@ -7,6 +7,7 @@ const help = async (client, msg) => {
     * \`?char[c] <name>\` - find a character by name
     * \`?chars <query>\` - search the character database
     * \`?charq\` - print statistics about the character database
+    * \`?prefix\` - list all available prefixes in the character database
   
     **Item Commands**
 

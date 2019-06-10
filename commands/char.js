@@ -19,6 +19,7 @@ const EMBED_COLORS = {
 let charSet = new FuzzySet();
 let charTalentSearchSet = new FuzzySet();
 let specialFindMaps = {};
+let prefixes = {};
 
 const getCharSet = () => charSet;
 const getSearchSet = () => charTalentSearchSet;
@@ -35,6 +36,10 @@ const addChar = (char) => {
     aliases.push(`awk ${firstName}`);
     aliases.push(`a ${firstName}`);
     aliases.push(`a${firstName}`);
+    aliases.push(`${firstName}A`);
+    aliases.push(`${firstName} awk`);
+
+    prefixes.awk = 'Awakened';
   }
   
   // holiday aliases
@@ -44,6 +49,8 @@ const addChar = (char) => {
     aliases.push(`${holiday} ${firstName}`);
     aliases.push(`${shortHoliday} ${firstName}`);
     aliases.push(`${shortHoliday}${firstName}`);
+
+    prefixes[shortHoliday] = holiday;
 
   // first name alias
   } else {
@@ -243,6 +250,12 @@ const charq = (client, msg, args, { region }) => {
   sendMessage(msg, { embed });
 };
 
+const charp = (client, msg, args, { region }) => {
+  msg.channel.send(`
+    ${Object.keys(prefixes).sort().map(p => `* ${p} -> ${prefixes[p]}`)}
+  `);
+};
+
 const chars = (client, msg, args, { region }) => {
   const allResults = [];
 
@@ -330,6 +343,7 @@ const charReset = () => {
   charSet = new FuzzySet();
   charTalentSearchSet = new FuzzySet();
   specialFindMaps = {};
+  prefixes = {};
 };
 
-module.exports = { char, chard, charc, chars, charq, charMD, addChar, charReset };
+module.exports = { char, chard, charc, chars, charq, charp, charMD, addChar, charReset };

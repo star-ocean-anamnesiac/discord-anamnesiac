@@ -9,7 +9,7 @@ const { API_URL, weaponHash, emojiHash, emojiInstHash } = require('./shared');
 
 const { addGuide, guide, guided, guideq, guides, guideMD, guideReset } = require('./commands/guide');
 const { addItem, item, itemd, itemq, items, itemMD, itemReset } = require('./commands/item');
-const { addChar, char, chard, charc, chars, charq, charMD, charReset } = require('./commands/char');
+const { addChar, char, chard, charc, chars, charq, charp, charMD, charReset } = require('./commands/char');
 const { addShop, shop, shopMD, shopReset } = require('./commands/shop');
 
 const { roomInit, room } = require('./commands/room');
@@ -84,6 +84,8 @@ const commands = {
   '?charc': charc,
   '?chars': chars,
   '?charq': charq,
+
+  '?prefix': charp,
 
   '?shop': shop,
 
