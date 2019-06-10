@@ -14,6 +14,7 @@ const { addShop, shop, shopMD, shopReset } = require('./commands/shop');
 
 const { roomInit, room } = require('./commands/room');
 const { contribute } = require('./commands/contribute');
+const { help } = require('./commands/help');
 
 const visitor = process.env.GA_UID ? ua(process.env.GA_UID, 'DISCORD_BOT', { strictCidFormat: false }) : null;
 const client = new Discord.Client();
@@ -87,7 +88,10 @@ const commands = {
   '?shop': shop,
 
   '?room': room,
-  '?contribute': contribute
+  '?contribute': contribute,
+  '?bot': help,
+  '?ahelp': help,
+  '?anamnesiac': help
 };
 
 const determineRegion = (msg) => {
