@@ -123,7 +123,7 @@ const buildEmbedForChar = (charData, exactMatch, args, desc) => {
     .setURL(`https://anamnesiac.seiyria.com/characters?region=${charData.cat}&char=${encodeURI(charData.name)}`)
     .setFooter(exactMatch ? '' : `Sorry, I could not find an exact match for "${args}". This'll have to do, 'kay?`);
 
-  embed.addField('About', `${getEmoji(`sbrRarity${charData.star}`)} ${awk} ${charData.ace ? 'ACE' : ''} ${charData.semi ? 'Semi-' : ''}${charData.limited ? 'Limited' : ''} - ${weaponHash[charData.weapon]} User`);
+  embed.addField('About', `${getEmoji(`sbrRarity${charData.star}`)} ${awk} ${charData.ace ? 'ACE' : ''} ${charData.semi ? 'Semi-' : ''}${charData.limited ? 'Limited' : ''} - ${getEmoji(`sbrItem${charData.weapon.slice(0, 1).toUpperCase() + charData.weapon.slice(1)}`)} ${weaponHash[charData.weapon]} User`);
 
   charData.talents.forEach(tal => {
     const talString = tal.shortEffects ? `- ${tal.shortEffects}` : tal.effects.map(x => `- ${x.desc} ${x.all ? `(${x.all === true ? 'Party' : x.all})` : ''}`).join('\n');
