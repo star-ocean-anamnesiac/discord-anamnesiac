@@ -22,6 +22,7 @@ const buildEmbedForShop = (shopData, exactMatch, args) => {
   const embed = new Discord.RichEmbed()
     .setAuthor(`${shopData.name} [${shopData.cat.toUpperCase()}]`, `${ASSET_URL}/icons/shop/shop-${shopData.icon}.png`)
     .setFooter(exactMatch ? '' : `Sorry, I could not find an exact match for "${args}". This'll have to do, 'kay?`)
+    .addField('Event', shopData.eventName || 'No event name specified yet!')
     .addField('Currency', shopData.currency)
     .addField('Total Cost', shopData.items.reduce((prev, item) => {
       if(!item.stock) return prev + 0;
