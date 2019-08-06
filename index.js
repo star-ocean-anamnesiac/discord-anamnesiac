@@ -106,11 +106,11 @@ const commands = {
 const determineRegion = (msg) => {
   const chanName = msg.channel.name || '';
   if(chanName.includes('jp')) return 'jp';
-  return 'gl';
+  return 'jp';
 };
 
 const parseCommandArgsRegion = (content, msg = null) => {
-  let region = msg ? determineRegion(msg) : 'gl';
+  let region = msg ? determineRegion(msg) : 'jp';
 
   let cmd = (content.split(' ')[0] || '').toLowerCase().trim();
   const args = content.slice(content.indexOf(' ') + 1);
