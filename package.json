@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "nodemon index.js"
   },
   "engines": {
     "node": "10.x.x"
@@ -31,5 +31,8 @@
     "lodash.uniqby": "^4.7.0",
     "snoostorm": "^1.0.2",
     "universal-analytics": "^0.4.20"
+  },
+  "devDependencies": {
+    "nodemon": "^1.19.3"
   }
 }
