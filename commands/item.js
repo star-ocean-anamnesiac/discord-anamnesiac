@@ -7,8 +7,6 @@ const compact = require('lodash.compact');
 
 const { ASSET_URL, weaponHash, getEmoji, updatePresence, sendMessage, getAliases, getRedditFooter, flatUniqPakt } = require('../shared');
 
-const lightningAlias = element => element.toLowerCase() == "lightning" ? "thunder" : element
-
 let itemSet = new FuzzySet();
 let itemSearchSet = new FuzzySet();
 const itemHash = {};
