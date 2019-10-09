@@ -1,11 +1,8 @@
-
-
 const axios = require('axios');
 const ua = require('universal-analytics');
 const Discord = require('discord.js');
 const Snoowrap = require('snoowrap');
 const { CommentStream } = require('snoostorm');
-const {aliasingLightning} = require('./utils/aliasingLightning')
 const { API_URL, weaponHash, emojiHash, emojiInstHash } = require('./shared');
 
 const { addGuide, guide, guideq, guides, guideMD, guideReset } = require('./commands/guide');
@@ -18,8 +15,11 @@ const { roomInit, room } = require('./commands/room');
 const { contribute } = require('./commands/contribute');
 const { help } = require('./commands/help');
 
+const {aliasLightning} = require('./utils/aliasLightning');
+
 const visitor = process.env.GA_UID ? ua(process.env.GA_UID, 'DISCORD_BOT', { strictCidFormat: false }) : null;
 const client = new Discord.Client();
+
 
 let currentAPICommit = '';
 let currentData = {};
@@ -30,9 +30,7 @@ const sendUAEvent = (event, search) => {
   visitor.event(event, search).send();
 };
 
-// collecting data from website
 const refreshAPI = async () => {
-  // resets all fuzzySet
   guideReset();
   itemReset();
   charReset();
@@ -47,7 +45,7 @@ const refreshAPI = async () => {
 
   allItems.forEach(item => {
     // change all the lightning to thunder
-    addItem(aliasingLightning(item));
+    addItem(aliasLightning(item));
   });
 
   allCharacters.forEach(char => {
