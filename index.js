@@ -6,7 +6,6 @@ const Discord = require('discord.js');
 const Snoowrap = require('snoowrap');
 const { CommentStream } = require('snoostorm');
 const {aliasingLightning} = require('./utils/aliasingLightning')
-console.log('wooot -> ',aliasingLightning);
 const { API_URL, weaponHash, emojiHash, emojiInstHash } = require('./shared');
 
 const { addGuide, guide, guideq, guides, guideMD, guideReset } = require('./commands/guide');
@@ -42,11 +41,10 @@ const refreshAPI = async () => {
 
   const { allItems, allCharacters, allGuides, allShops, allStamps, root } = (await axios.get(API_URL)).data;
   currentData = { allItems, allCharacters, allGuides, allShops, allStamps };
-  // console.log("current data ->", currentData);
   root.weapons.forEach(({ id, name }) => {
     weaponHash[id] = name;
   });
-  console.log(aliasingLightning(allItems[0]))
+
   allItems.forEach(item => {
     // change all the lightning to thunder
     addItem(aliasingLightning(item));
@@ -133,6 +131,8 @@ const parseCommandArgsRegion = (content, msg = null) => {
 };
 
 client.on('ready', () => {
+  console.log('Discord connected!');
+
   const allEmoji = client.emojis.filter(emoji => emoji.name.startsWith('sbr'));
   allEmoji.forEach(emoji => {
     emojiInstHash[emoji.name] = emoji;
@@ -149,7 +149,6 @@ client.on('message', async msg => {
   if(!commands[cmd]) return;
 
   await tryRefreshAPI();
-  // console.log("command ->", cmd);
   sendUAEvent('Discord', cmd);
 
   commands[cmd](client, msg, args, { cmd, region, currentData });
