@@ -23,7 +23,6 @@ const addItem = (item) => {
 
   getSearchSet().add(`${itemId} ${item.subtype === 'all' ? 'accessory' : item.subtype}`);
   getSearchSet().add(`${itemId} ${item.obtained}`);
-
   item.factors.forEach(fact => {
     getSearchSet().add(`${itemId} ${fact.desc}`);
 
@@ -91,7 +90,6 @@ const items = (client, msg, args, { region }) => {
   const allResults = [];
 
   const terms = args.split(',').map(x => x.trim().toLowerCase());
-
   terms.forEach(term => {
     const res = getSearchSet().get(term, null, 0.1);
     allResults.push(res.map(x => itemHash[`${x[1].split(' ')[0]}.${region}`]));

@@ -10,7 +10,7 @@ const emojiInstHash = {};
 const weaponHash = {};
 
 const getEmoji = (em) => {
-  return emojiHash[em] || '';
+  return emojiHash[em.replace('Thunder', 'Lightning')] || '';
 };
 
 const getEmojiInst = (em) => {
@@ -45,7 +45,7 @@ const getAliases = (str) => {
 
 const getRedditFooter = () => {
   return `
-  
+
 ___
 I am a bot, created by Captain /u/seiyria to help out! Concerns, questions, comments should be sent to that inbox. Want to help? [Check out our contributing guide!](https://github.com/seiyria/anamnesiac/blob/master/CONTRIBUTING.md)
   `;
@@ -53,10 +53,62 @@ I am a bot, created by Captain /u/seiyria to help out! Concerns, questions, comm
 
 const flatUniqPakt = (arrs) => {
   if(arrs.length === 0) return { None: 0 };
-  
+
   const base = groupBy(flatten(arrs).filter(x => x), x => x);
   Object.keys(base).forEach(x => base[x] = base[x].length);
   return base;
 };
 
-module.exports = { API_URL, ASSET_URL, emojiHash, emojiInstHash, weaponHash, getEmoji, getEmojiInst, updatePresence, sendMessage, getAliases, getRedditFooter, flatUniqPakt };
+const containsLightning = element => {
+  if(element) {
+    return element.search('ightning');
+  }
+  return false;
+};
+
+const replaceWordLightningToThunder = (propVal) => {
+  if(propVal) {
+    return propVal.replace(/lightning/gi, 'Thunder');
+  }
+  return propVal;
+}
+
+const aliasLightning = item => {
+  const isLightning = containsLightning(item.factors[0].element) || containsLightning(item.factors[0].desc) || containsLightning(item.notes);
+  const { factors } = item;
+  const [first, second, ...rest] = factors;
+
+  if(isLightning) {
+    if(second) {
+      return Object.assign({}, item, {
+        factors: [
+          Object.assign({}, factors.desc, {
+            desc: replaceWordLightningToThunder(first.desc),
+            element: replaceWordLightningToThunder(first.element),
+          }),
+          Object.assign({}, factors.desc, {
+            desc: replaceWordLightningToThunder(second.desc),
+            meta: second.meta,
+          }),
+          ...rest
+        ],
+        notes: replaceWordLightningToThunder(item.notes)
+      });
+    }
+
+    return Object.assign({}, item, {
+      factors: [
+        Object.assign({}, factors.desc, {
+          desc: replaceWordLightningToThunder(first.desc),
+          element: replaceWordLightningToThunder(first.element),
+        }),
+        ...rest
+      ],
+      notes: replaceWordLightningToThunder(item.notes)
+    });
+  }
+
+  return item;
+}
+
+module.exports = { API_URL, ASSET_URL, emojiHash, emojiInstHash, weaponHash, getEmoji, getEmojiInst, updatePresence, sendMessage, getAliases, getRedditFooter, flatUniqPakt, aliasLightning };

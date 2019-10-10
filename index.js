@@ -1,11 +1,9 @@
-
 const axios = require('axios');
 const ua = require('universal-analytics');
 const Discord = require('discord.js');
 const Snoowrap = require('snoowrap');
 const { CommentStream } = require('snoostorm');
-
-const { API_URL, weaponHash, emojiHash, emojiInstHash } = require('./shared');
+const { API_URL, weaponHash, emojiHash, emojiInstHash, aliasLightning } = require('./shared');
 
 const { addGuide, guide, guideq, guides, guideMD, guideReset } = require('./commands/guide');
 const { addItem, item, itemq, items, itemMD, itemReset } = require('./commands/item');
@@ -19,6 +17,7 @@ const { help } = require('./commands/help');
 
 const visitor = process.env.GA_UID ? ua(process.env.GA_UID, 'DISCORD_BOT', { strictCidFormat: false }) : null;
 const client = new Discord.Client();
+
 
 let currentAPICommit = '';
 let currentData = {};
@@ -35,16 +34,16 @@ const refreshAPI = async () => {
   charReset();
   shopReset();
   stampReset();
-  
+
   const { allItems, allCharacters, allGuides, allShops, allStamps, root } = (await axios.get(API_URL)).data;
   currentData = { allItems, allCharacters, allGuides, allShops, allStamps };
-
   root.weapons.forEach(({ id, name }) => {
     weaponHash[id] = name;
   });
 
   allItems.forEach(item => {
-    addItem(item);
+    // change all the lightning to thunder
+    addItem(aliasLightning(item));
   });
 
   allCharacters.forEach(char => {
@@ -66,7 +65,6 @@ const refreshAPI = async () => {
 
 const tryRefreshAPI = async () => {
   const res = await axios.head(API_URL);
-
   const commit = res.headers['x-commit'];
   if(commit !== currentAPICommit) {
     currentAPICommit = commit;
@@ -136,7 +134,6 @@ client.on('ready', () => {
     emojiInstHash[emoji.name] = emoji;
     emojiHash[emoji.name] = emoji.toString();
   });
-
   roomInit(client);
 });
 
@@ -144,7 +141,6 @@ client.on('message', async msg => {
 
   const content = msg.content;
   const { cmd, region, args } = parseCommandArgsRegion(content, msg);
-  
   if(!commands[cmd]) return;
 
   await tryRefreshAPI();
@@ -157,7 +153,7 @@ client.on('error', err => console.error(err));
 
 const initReddit = () => {
   console.log('Reddit connected!');
-  
+
   const client = new Snoowrap({
     userAgent: 'discord-anamnesiac v1.x.x',
     clientId: process.env.REDDIT_APP,
@@ -220,7 +216,7 @@ const init = async () => {
   if(REDDIT_USERNAME) {
     initReddit();
   }
-  
+
 };
 
 init();
