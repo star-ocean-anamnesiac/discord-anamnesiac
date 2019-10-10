@@ -3,7 +3,7 @@ const ua = require('universal-analytics');
 const Discord = require('discord.js');
 const Snoowrap = require('snoowrap');
 const { CommentStream } = require('snoostorm');
-const { API_URL, weaponHash, emojiHash, emojiInstHash } = require('./shared');
+const { API_URL, weaponHash, emojiHash, emojiInstHash, aliasLightning } = require('./shared');
 
 const { addGuide, guide, guideq, guides, guideMD, guideReset } = require('./commands/guide');
 const { addItem, item, itemq, items, itemMD, itemReset } = require('./commands/item');
@@ -14,8 +14,6 @@ const { addStamp, stamp, stampReset } = require('./commands/stamp');
 const { roomInit, room } = require('./commands/room');
 const { contribute } = require('./commands/contribute');
 const { help } = require('./commands/help');
-
-const {aliasLightning} = require('./utils/aliasLightning');
 
 const visitor = process.env.GA_UID ? ua(process.env.GA_UID, 'DISCORD_BOT', { strictCidFormat: false }) : null;
 const client = new Discord.Client();
@@ -136,7 +134,6 @@ client.on('ready', () => {
     emojiInstHash[emoji.name] = emoji;
     emojiHash[emoji.name] = emoji.toString();
   });
-
   roomInit(client);
 });
 
